@@ -1,0 +1,32 @@
+{
+  "name": "team1-backend",
+  "version": "1.0.0",
+  "description": "Team1 Backend",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "echo \"Temporary: lint skipped\"",
+    "test": "echo \"Temporary: lint skipped\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/derry-academy-students-2026/team1-backend.git"
+  },
+  "keywords": [],
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/derry-academy-students-2026/team1-backend/issues"
+  },
+  "homepage": "https://github.com/derry-academy-students-2026/team1-backend#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.1.2",
+    "tsx": "^4.23.5",
+    "typescript": "^7.0.2"
+  }
+}
