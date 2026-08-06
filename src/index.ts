@@ -1,15 +1,6 @@
-import express from "express";
+import { app } from "./app.js";
 
-const app = express();
-const PORT = 3000;
-
-// Middleware
-app.use(express.json());
-
-// Health endpoint
-app.get("/health", (_req, res) => {
-	res.json({ status: "UP", time: new Date().toISOString() });
-});
+const PORT = Number(process.env.PORT) || 3000;
 
 // Start server
 app.listen(PORT, () => {
