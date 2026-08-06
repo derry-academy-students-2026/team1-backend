@@ -1,18 +1,13 @@
 {
-  "compilerOptions": {
-    "target": "ES2022", // compile to modern JS (async/await, etc.)
-    "module": "ESNext", // use ES module syntax (import/export)
-    "moduleResolution": "bundler", // resolve modules like a bundler (Vite/tsx)
-    "esModuleInterop": true, // allows default imports from CommonJS packages
-    "strict": true, // enables all strict type checks
-    "outDir": "./dist", // compiled JS output folder
-    "rootDir": "./src" // where your TypeScript source lives
-  },
-  "include": [
-    "src/**/*"
-  ], // only compile files under src/
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+	"compilerOptions": {
+		"target": "ES2022", // compile to modern JS (async/await, etc.)
+		"module": "ESNext", // use ES module syntax (import/export)
+		"moduleResolution": "bundler", // resolve modules like a bundler (Vite/tsx)
+		"esModuleInterop": true, // allows default imports from CommonJS packages
+		"strict": true, // enables all strict type checks
+		"outDir": "./dist", // compiled JS output folder
+		"rootDir": "./src" // where your TypeScript source lives
+	},
+	"include": ["src/**/*"], // only compile files under src/
+	"exclude": ["node_modules", "dist"]
 }
