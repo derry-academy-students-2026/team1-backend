@@ -21,10 +21,13 @@
   },
   "homepage": "https://github.com/derry-academy-students-2026/team1-backend#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "morgan": "^1.11.0",
+    "winston": "^3.19.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
+    "@types/morgan": "^1.9.10",
     "@types/node": "^26.1.2",
     "tsx": "^4.23.5",
     "typescript": "^7.0.2"

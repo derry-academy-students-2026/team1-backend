@@ -1,18 +1,19 @@
-import { time } from "console";
 import express from "express";
 
+import logger from "./config/logger.js";
+import requestLogger from "./middleware/requestLogger.js";
+import healthRouter from "./routes/healthRouter.js";
+
 const app = express();
-const PORT = 3000;
+const PORT = Number.parseInt(process.env.PORT ?? "3000", 10);
 
 // Middleware
 app.use(express.json());
+app.use(requestLogger);
 
-// Health endpoint
-app.get("/health", (req, res) => {
-  res.json({ status: "UP", time: new Date().toISOString() });
-});
+app.use(healthRouter);
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Health Endpoint of Basic Node: http://localhost:${PORT}/health`);
+  logger.info(`Health Endpoint of Basic Node: http://localhost:${PORT}/health`);
 });
