@@ -1,11 +1,8 @@
 import { mkdirSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import winston from "winston";
 
-const filename = fileURLToPath(import.meta.url);
-const dirname = path.dirname(filename);
-const logsDirectory = path.resolve(dirname, "..", "..", "logs");
+const logsDirectory = path.resolve(process.cwd(), "logs");
 
 mkdirSync(logsDirectory, { recursive: true });
 
