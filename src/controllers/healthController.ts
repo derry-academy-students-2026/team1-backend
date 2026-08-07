@@ -13,12 +13,12 @@ export const getHealth = (
 
 		logger.info("Health check completed");
 		res.json(healthStatus);
-} catch (error) {
-	if (error instanceof Error) {
-		logger.error("Health check failed", error);
-	} else {
-		logger.error(`Health check failed: ${String(error)}`);
+	} catch (error) {
+		if (error instanceof Error) {
+			logger.error("Health check failed", error);
+		} else {
+			logger.error(`Health check failed: ${String(error)}`);
+		}
+		next(error);
 	}
-	next(error);
-}
 };

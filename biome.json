@@ -5,7 +5,7 @@
 		"indentStyle": "tab"
 	},
 	"files": {
-		"includes": ["**", "!dist", "!logs"]
+		"includes": ["**", "!dist", "!logs", "!coverage"]
 	},
 	"linter": {
 		"enabled": true,
@@ -20,7 +20,5 @@
 				"organizeImports": "on"
 			}
 		}
-	"files": {
-		"includes": ["**", "!coverage"]
 	}
 }
