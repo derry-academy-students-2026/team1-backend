@@ -8,7 +8,9 @@
 		"build": "tsc",
 		"start": "node dist/index.js",
 		"lint": "biome check src",
-		"test": "npm run build && node --test dist/services/healthService.test.js"
+		"test": "npm run build && node --test dist/services/healthService.test.js",
+		"test:watch": "npm run build && node --test --watch dist/services/healthService.test.js",
+		"test:coverage": "npm run build && node --test --experimental-test-coverage dist/services/healthService.test.js"
 	},
 	"repository": {
 		"type": "git",
