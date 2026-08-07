@@ -1,15 +1,15 @@
 import logger from "../config/logger.js";
 
 export interface HealthStatus {
-  status: "UP";
-  time: string;
+	status: "UP";
+	time: string;
 }
 
 export const getHealthStatus = (): HealthStatus => {
-  logger.debug("Health status generated");
+	logger.debug("Health status generated");
 
-  return {
-    status: "UP",
-    time: new Date().toISOString(),
-  };
+	return {
+		status: "UP",
+		time: new Date().toISOString(),
+	};
 };

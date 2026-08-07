@@ -15,5 +15,5 @@ app.use(healthRouter);
 
 // Start server
 app.listen(PORT, () => {
-  logger.info(`Health Endpoint of Basic Node: http://localhost:${PORT}/health`);
+	logger.info(`Health Endpoint of Basic Node: http://localhost:${PORT}/health`);
 });
