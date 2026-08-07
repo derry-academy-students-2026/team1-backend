@@ -5,7 +5,8 @@ import requestLogger from "./middleware/requestLogger.js";
 import healthRouter from "./routes/healthRouter.js";
 
 const app = express();
-const PORT = Number.parseInt(process.env.PORT ?? "3000", 10);
+const parsedPort = Number.parseInt(process.env.PORT ?? "3000", 10);
+const PORT = Number.isFinite(parsedPort) ? parsedPort : 3000;
 
 // Middleware
 app.use(express.json());
