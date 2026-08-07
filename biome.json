@@ -20,5 +20,7 @@
 				"organizeImports": "on"
 			}
 		}
+	"files": {
+		"includes": ["**", "!coverage"]
 	}
 }

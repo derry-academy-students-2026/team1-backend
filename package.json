@@ -11,6 +11,15 @@
 		"test": "npm run build && node --test dist/services/healthService.test.js",
 		"test:watch": "npm run build && node --test --watch dist/services/healthService.test.js",
 		"test:coverage": "npm run build && node --test --experimental-test-coverage dist/services/healthService.test.js"
+		"lint": "biome check .",
+		"lint:fix": "biome check . --write",
+		"test": "vitest run",
+		"test:ui": "vitest --ui",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage"
+	},
+	"vitest": {
+		"environment": "node"
 	},
 	"repository": {
 		"type": "git",
@@ -26,6 +35,7 @@
 		"express": "^5.2.1",
 		"morgan": "^1.11.0",
 		"winston": "^3.19.0"
+		"express": "^5.2.1"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.7",
@@ -34,5 +44,13 @@
 		"@types/node": "^26.1.2",
 		"tsx": "^4.23.5",
 		"typescript": "^7.0.2"
+		"@types/node": "^26.1.2",
+		"@types/supertest": "^7.2.1",
+		"@vitest/coverage-v8": "^4.1.10",
+		"@vitest/ui": "^4.1.10",
+		"supertest": "^7.2.2",
+		"tsx": "^4.23.5",
+		"typescript": "^7.0.2",
+		"vitest": "^4.1.10"
 	}
 }
