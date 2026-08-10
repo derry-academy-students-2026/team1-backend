@@ -61,7 +61,10 @@ if (process.env.LOG_TO_FILE === "true") {
 			level: "error",
 			format: fileFormat,
 		}),
-		new winston.transports.File({ filename: "logs/all.log", format: fileFormat }),
+		new winston.transports.File({
+			filename: "logs/all.log",
+			format: fileFormat,
+		}),
 	);
 }
 
