@@ -1,18 +1,12 @@
-import { mkdirSync } from "node:fs";
-import path from "node:path";
 import winston from "winston";
 
-const logsDirectory = path.resolve(process.cwd(), "logs");
-
-mkdirSync(logsDirectory, { recursive: true });
-
-const logLevels = {
+const levels = {
 	error: 0,
 	warn: 1,
 	info: 2,
 	http: 3,
 	debug: 4,
-} as const;
+};
 
 const colors = {
 	error: "red",
@@ -24,58 +18,44 @@ const colors = {
 
 winston.addColors(colors);
 
-const pad = (value: number, length = 2): string => {
-	return value.toString().padStart(length, "0");
+const colorCodes = {
+	error: "\u001b[31m",
+	warn: "\u001b[33m",
+	info: "\u001b[32m",
+	http: "\u001b[35m",
+	debug: "\u001b[37m",
 };
 
-const formatTimestamp = (date: Date): string => {
-	const year = date.getFullYear();
-	const month = pad(date.getMonth() + 1);
-	const day = pad(date.getDate());
-	const hours = pad(date.getHours());
-	const minutes = pad(date.getMinutes());
-	const seconds = pad(date.getSeconds());
-	const milliseconds = pad(date.getMilliseconds(), 3);
+const resetColor = "\u001b[0m";
 
-	return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}:${milliseconds}`;
+const colorLine = (level: string, line: string): string => {
+	const color = colorCodes[level as keyof typeof colorCodes];
+	return color ? `${color}${line}${resetColor}` : line;
 };
 
-const logFormat = winston.format.printf(({ timestamp, level, message }) => {
-	return `${timestamp} ${level}: ${message}`;
-});
+// Show all logs in development; only warn+ in production
+const level = () => {
+	const env = process.env.NODE_ENV || "development";
+	return env === "development" ? "debug" : "warn";
+};
 
-const baseFormat = winston.format.combine(
-	winston.format.timestamp({ format: () => formatTimestamp(new Date()) }),
-	winston.format.errors({ stack: true }),
-	winston.format.splat(),
+const format = winston.format.combine(
+	winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:SSS" }),
+	winston.format.printf((info) => {
+		const line = `[${info.timestamp}] [${info.level}]: ${info.message}`;
+		return colorLine(info.level, line);
+	}),
 );
+const transports = [
+	new winston.transports.Console(),
+	new winston.transports.File({ filename: "logs/error.log", level: "error" }),
+	new winston.transports.File({ filename: "logs/all.log" }),
+];
 
-const fileFormat = winston.format.combine(baseFormat, logFormat);
-
-const consoleFormat = winston.format.combine(
-	baseFormat,
-	winston.format.colorize(),
-	logFormat,
-);
-
-const logger = winston.createLogger({
-	levels: logLevels,
-	level: "debug",
-	format: fileFormat,
-	transports: [
-		new winston.transports.File({
-			filename: path.join(logsDirectory, "all.log"),
-			level: "debug",
-		}),
-		new winston.transports.File({
-			filename: path.join(logsDirectory, "error.log"),
-			level: "error",
-		}),
-	],
+const Logger = winston.createLogger({
+	level: level(),
+	levels,
+	format,
+	transports,
 });
-
-if (process.env.NODE_ENV !== "production") {
-	logger.add(new winston.transports.Console({ format: consoleFormat }));
-}
-
-export default logger;
+export default Logger;

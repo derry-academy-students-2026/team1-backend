@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 
-import logger from "../lib/logger.js";
+import Logger from "../lib/logger.js";
 import { getHealthStatus } from "../services/healthService.js";
 
 export const getHealth = (
@@ -11,13 +11,13 @@ export const getHealth = (
 	try {
 		const healthStatus = getHealthStatus();
 
-		logger.info("Health check completed");
+		Logger.info("Health endpoint accessed");
 		res.json(healthStatus);
 	} catch (error) {
 		if (error instanceof Error) {
-			logger.error("Health check failed", error);
+			Logger.error("Health check failed", error);
 		} else {
-			logger.error(`Health check failed: ${String(error)}`);
+			Logger.error(`Health check failed: ${String(error)}`);
 		}
 		next(error);
 	}

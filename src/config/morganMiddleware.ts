@@ -1,23 +1,16 @@
 import type { RequestHandler } from "express";
-import morgan from "morgan";
+import morgan, { type StreamOptions } from "morgan";
 
-import logger from "../lib/logger.js";
+import Logger from "../lib/logger.js";
 
-morgan.token("path", (req) => {
-	const request = req as typeof req & { originalUrl?: string };
-	const url = (request.originalUrl ?? request.url ?? "").split("?")[0];
-	return url;
-});
+// Route Morgan output through Winston's http level
+const stream: StreamOptions = {
+	write: (message) => Logger.http(message.trimEnd()),
+};
 
 const morganMiddleware: RequestHandler = morgan(
-	":remote-addr :method :path :status :res[content-length] - :response-time ms",
-	{
-		stream: {
-			write: (message: string) => {
-				logger.http(message.trim());
-			},
-		},
-	},
+	":method :url :status :res[content-length] - :response-time ms",
+	{ stream },
 );
 
 export default morganMiddleware;
