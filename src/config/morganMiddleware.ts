@@ -1,14 +1,15 @@
 import type { RequestHandler } from "express";
 import morgan from "morgan";
 
-import logger from "../config/logger.js";
+import logger from "../lib/logger.js";
 
 morgan.token("path", (req) => {
-	const url = (req.originalUrl ?? req.url ?? "").split("?")[0];
+	const request = req as typeof req & { originalUrl?: string };
+	const url = (request.originalUrl ?? request.url ?? "").split("?")[0];
 	return url;
 });
 
-const requestLogger: RequestHandler = morgan(
+const morganMiddleware: RequestHandler = morgan(
 	":remote-addr :method :path :status :res[content-length] - :response-time ms",
 	{
 		stream: {
@@ -19,4 +20,4 @@ const requestLogger: RequestHandler = morgan(
 	},
 );
 
-export default requestLogger;
+export default morganMiddleware;

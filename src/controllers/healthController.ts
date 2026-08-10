@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 
-import logger from "../config/logger.js";
+import logger from "../lib/logger.js";
 import { getHealthStatus } from "../services/healthService.js";
 
 export const getHealth = (

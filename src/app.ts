@@ -1,11 +1,14 @@
 import express from "express";
 
+import morganMiddleware from "./config/morganMiddleware.js";
+import healthRouter from "./routes/healthRouter.js";
+
 export const app = express();
 
 // Middleware
 app.use(express.json());
+app.use(morganMiddleware);
 
-// Health endpoint
-app.get("/health", (_req, res) => {
-	res.json({ status: "UP", time: new Date().toISOString() });
-});
+app.use(healthRouter);
+
+export default app;

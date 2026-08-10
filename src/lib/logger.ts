@@ -14,6 +14,16 @@ const logLevels = {
 	debug: 4,
 } as const;
 
+const colors = {
+	error: "red",
+	warn: "yellow",
+	info: "green",
+	http: "magenta",
+	debug: "white",
+};
+
+winston.addColors(colors);
+
 const pad = (value: number, length = 2): string => {
 	return value.toString().padStart(length, "0");
 };

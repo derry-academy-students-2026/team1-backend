@@ -1,4 +1,4 @@
-import logger from "../config/logger.js";
+import logger from "../lib/logger.js";
 
 export interface HealthStatus {
 	status: "UP";
