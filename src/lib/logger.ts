@@ -39,23 +39,36 @@ const level = () => {
 	return env === "development" ? "debug" : "warn";
 };
 
-const format = winston.format.combine(
+const consoleFormat = winston.format.combine(
 	winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:SSS" }),
 	winston.format.printf((info) => {
 		const line = `[${info.timestamp}] [${info.level}]: ${info.message}`;
 		return colorLine(info.level, line);
 	}),
 );
-const transports = [
-	new winston.transports.Console(),
-	new winston.transports.File({ filename: "logs/error.log", level: "error" }),
-	new winston.transports.File({ filename: "logs/all.log" }),
-];
+
+const fileFormat = winston.format.combine(
+	winston.format.timestamp(),
+	winston.format.json(),
+);
+
+const transports = [new winston.transports.Console({ format: consoleFormat })];
+
+if (process.env.LOG_TO_FILE === "true") {
+	transports.push(
+		new winston.transports.File({
+			filename: "logs/error.log",
+			level: "error",
+			format: fileFormat,
+		}),
+		new winston.transports.File({ filename: "logs/all.log", format: fileFormat }),
+	);
+}
 
 const Logger = winston.createLogger({
 	level: level(),
 	levels,
-	format,
+	format: fileFormat,
 	transports,
 });
 export default Logger;
