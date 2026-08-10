@@ -15,7 +15,11 @@
 		"test:coverage": "vitest run --coverage"
 	},
 	"vitest": {
-		"environment": "node"
+		"environment": "node",
+		"exclude": [
+			"dist/**",
+			"node_modules/**"
+		]
 	},
 	"repository": {
 		"type": "git",
@@ -28,11 +32,14 @@
 	},
 	"homepage": "https://github.com/derry-academy-students-2026/team1-backend#readme",
 	"dependencies": {
-		"express": "^5.2.1"
+		"express": "^5.2.1",
+		"morgan": "^1.11.0",
+		"winston": "^3.19.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.7",
 		"@types/express": "^5.0.6",
+		"@types/morgan": "^1.9.10",
 		"@types/node": "^26.1.2",
 		"@types/supertest": "^7.2.1",
 		"@vitest/coverage-v8": "^4.1.10",
