@@ -15,7 +15,11 @@
 		"test:coverage": "vitest run --coverage"
 	},
 	"vitest": {
-		"environment": "node"
+		"environment": "node",
+		"exclude": [
+			"dist/**",
+			"node_modules/**"
+		]
 	},
 	"repository": {
 		"type": "git",
