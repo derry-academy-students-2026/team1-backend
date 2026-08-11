@@ -32,8 +32,11 @@
 	},
 	"homepage": "https://github.com/derry-academy-students-2026/team1-backend#readme",
 	"dependencies": {
+		"@prisma/adapter-pg": "^7.9.1",
+		"@prisma/client": "^6.19.3",
 		"express": "^5.2.1",
 		"morgan": "^1.11.0",
+		"pg": "^8.23.0",
 		"winston": "^3.19.0"
 	},
 	"devDependencies": {
@@ -44,6 +47,7 @@
 		"@types/supertest": "^7.2.1",
 		"@vitest/coverage-v8": "^4.1.10",
 		"@vitest/ui": "^4.1.10",
+		"prisma": "^6.19.3",
 		"supertest": "^7.2.2",
 		"tsx": "^4.23.5",
 		"typescript": "^7.0.2",

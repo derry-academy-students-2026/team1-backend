@@ -1,40 +1,67 @@
+import type { CreateJobRoleRequestDto } from "../dtos/jobRoleDto.js";
+import prisma from "../prismaClient.js";
+import type { JobRole } from "@prisma/client";
 
-import { JobRole } from "../models/jobRole";
 
-// Mock data — later replaced by a real ORM (e.g. Prisma)
-const mockJobs: JobRole[] = [
-    { id: 1, jobRoleName: "Example Job", location: "Derry", capabilityId: 0, bandId: 0, closingDate: "2023-01-01", status: "open " },
-];
 export class JobRoleService {
-    async findById(id: number): Promise<JobRole | undefined> {
-        return mockJobs.find(j => j.id === id);
-    }
     async findAll(): Promise<JobRole[]> {
-        return mockJobs;
+        return prisma.jobRole.findMany();
     }
 
-    async create(job: Omit<JobRole, "id">): Promise<JobRole> {
-        const newJob = { ...job, id: mockJobs.length + 1 };
-        mockJobs.push(newJob);
-        return newJob;
+    async findById(id: number): Promise<JobRole | null> {
+        return prisma.jobRole.findUnique({
+            where: { jobRoleId: id },
+        });
     }
 
-    async update(id: number, job: Omit<JobRole, "id">): Promise<JobRole> {
-        const index = mockJobs.findIndex(j => j.id === id);
-        if (index === -1) {
-            throw new Error("Job not found");
+    async create(job: CreateJobRoleRequestDto): Promise<JobRole> {
+        return prisma.jobRole.create({
+            data: {
+                roleName: job.jobRoleName,
+                location: job.location,
+                capabilityId: job.capabilityId,
+                bandId: job.bandId,
+                closingDate: new Date(job.closingDate),
+                status: job.status,
+            },
+        });
+    }
+
+    async update(id: number, job: CreateJobRoleRequestDto): Promise<JobRole | null> {
+        const existingJob = await prisma.jobRole.findUnique({
+            where: { jobRoleId: id },
+        });
+
+        if (!existingJob) {
+            return null;
         }
-        mockJobs[index] = { ...mockJobs[index], ...job };
-        return mockJobs[index];
+
+        return prisma.jobRole.update({
+            where: { jobRoleId: id },
+            data: {
+                roleName: job.jobRoleName,
+                location: job.location,
+                capabilityId: job.capabilityId,
+                bandId: job.bandId,
+                closingDate: new Date(job.closingDate),
+                status: job.status,
+            },
+        });
     }
 
-    async delete(id: number): Promise<Boolean> {
-        const index = mockJobs.findIndex(j => j.id === id);
-        if (index === -1) {
-            throw new Error("Job not found");
+    async delete(id: number): Promise<boolean> {
+        const existingJob = await prisma.jobRole.findUnique({
+            where: { jobRoleId: id },
+        });
+
+        if (!existingJob) {
+            return false;
         }
-        mockJobs.splice(index, 1);
+
+        await prisma.jobRole.delete({
+            where: { jobRoleId: id },
+        });
+
         return true;
     }
-
 }

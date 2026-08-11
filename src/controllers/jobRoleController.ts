@@ -12,12 +12,12 @@ export class JobRoleController {
         const jobRoles = await this.service.findAll();
 
         const dto: JobRoleResponseDto[] = jobRoles.map(jobRole => ({
-            id: jobRole.id,
-            jobRoleName: jobRole.jobRoleName,
+            id: jobRole.jobRoleId,
+            jobRoleName: jobRole.roleName,
             location: jobRole.location,
             capabilityId: jobRole.capabilityId,
             bandId: jobRole.bandId,
-            closingDate: jobRole.closingDate,
+            closingDate: jobRole.closingDate.toISOString(),
             status: jobRole.status
         }));
         res.status(200).json(dto);
@@ -37,12 +37,12 @@ export class JobRoleController {
         }
 
         const dto: JobRoleResponseDto = {
-            id: jobRole.id,
-            jobRoleName: jobRole.jobRoleName,
+            id: jobRole.jobRoleId,
+            jobRoleName: jobRole.roleName,
             location: jobRole.location,
             capabilityId: jobRole.capabilityId,
             bandId: jobRole.bandId,
-            closingDate: jobRole.closingDate,
+            closingDate: jobRole.closingDate.toISOString(),
             status: jobRole.status
         };
 
