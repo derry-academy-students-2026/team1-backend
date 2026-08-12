@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { JobRoleService } from "../services/jobRoleService.js";
-import { JobRoleResponseDto, CreateJobRoleRequestDto } from "../dtos/jobRoleDto.js";
+import { CreateJobRoleRequestDto } from "../dtos/jobRoleDto.js";
 
 
 export class JobRoleController {
@@ -10,17 +10,7 @@ export class JobRoleController {
     async getAll(req: Request, res: Response): Promise<void> {
 
         const jobRoles = await this.service.findAll();
-
-        const dto: JobRoleResponseDto[] = jobRoles.map(jobRole => ({
-            id: jobRole.id,
-            roleName: jobRole.roleName,
-            location: jobRole.location,
-            capabilityId: jobRole.capabilityId,
-            bandId: jobRole.bandId,
-            closingDate: jobRole.closingDate,
-            status: jobRole.status
-        }));
-        res.status(200).json(dto);
+        res.status(200).json(jobRoles);
 
     }
 
@@ -36,17 +26,7 @@ export class JobRoleController {
             return;
         }
 
-        const dto: JobRoleResponseDto = {
-            id: jobRole.id,
-            roleName: jobRole.roleName,
-            location: jobRole.location,
-            capabilityId: jobRole.capabilityId,
-            bandId: jobRole.bandId,
-            closingDate: jobRole.closingDate,
-            status: jobRole.status
-        };
-
-        res.status(200).json(dto);
+        res.status(200).json(jobRole);
     }
 
     async create(req: Request, res: Response): Promise<void> {

@@ -1,23 +1,50 @@
 import type { CreateJobRoleRequestDto, JobRoleResponseDto } from "../dtos/jobRoleDto.js";
 import prisma from "../prismaClient.js";
 
+const mapToJobRoleResponseDto = (jobRole: {
+    jobRoleId: number;
+    roleName: string;
+    location: string;
+    closingDate: Date;
+    status: string;
+    capability: {
+        capabilityId: number;
+        capabilityName: string;
+    };
+    band: {
+        bandId: number;
+        bandName: string;
+    };
+}): JobRoleResponseDto => ({
+    id: jobRole.jobRoleId,
+    roleName: jobRole.roleName,
+    location: jobRole.location,
+    capability: {
+        id: jobRole.capability.capabilityId,
+        name: jobRole.capability.capabilityName,
+    },
+    band: {
+        id: jobRole.band.bandId,
+        name: jobRole.band.bandName,
+    },
+    closingDate: jobRole.closingDate,
+    status: jobRole.status,
+});
+
 
 export class JobRoleService {
 
 
     public async findAll(): Promise<JobRoleResponseDto[]> {
 
-        const jobRoles = await prisma.jobRole.findMany();
+        const jobRoles = await prisma.jobRole.findMany({
+            include: {
+                capability: true,
+                band: true,
+            },
+        });
 
-        return jobRoles.map(job => ({
-            id: job.jobRoleId,
-            roleName: job.roleName,
-            location: job.location,
-            capabilityId: job.capabilityId,
-            bandId: job.bandId,
-            closingDate: job.closingDate,
-            status: job.status,
-        }));
+        return jobRoles.map(mapToJobRoleResponseDto);
 
     }
 
@@ -25,37 +52,31 @@ export class JobRoleService {
 
         const jobRole = await prisma.jobRole.findUnique({
             where: { jobRoleId: id },
+            include: {
+                capability: true,
+                band: true,
+            },
         });
 
         if (!jobRole) {
             return null;
         }
 
-        return {
-            id: jobRole.jobRoleId,
-            roleName: jobRole.roleName,
-            location: jobRole.location,
-            capabilityId: jobRole.capabilityId,
-            bandId: jobRole.bandId,
-            closingDate: jobRole.closingDate,
-            status: jobRole.status,
-        };
+        return mapToJobRoleResponseDto(jobRole);
     }
 
 
 
     public async create(data: CreateJobRoleRequestDto): Promise<JobRoleResponseDto> {
-        const createdJobRole = await prisma.jobRole.create({ data });
+        const createdJobRole = await prisma.jobRole.create({
+            data,
+            include: {
+                capability: true,
+                band: true,
+            },
+        });
 
-        return {
-            id: createdJobRole.jobRoleId,
-            roleName: createdJobRole.roleName,
-            location: createdJobRole.location,
-            capabilityId: createdJobRole.capabilityId,
-            bandId: createdJobRole.bandId,
-            closingDate: createdJobRole.closingDate,
-            status: createdJobRole.status,
-        };
+        return mapToJobRoleResponseDto(createdJobRole);
     }
 
 }
