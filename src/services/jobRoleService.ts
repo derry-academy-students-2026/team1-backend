@@ -1,67 +1,61 @@
-import type { CreateJobRoleRequestDto } from "../dtos/jobRoleDto.js";
+import type { CreateJobRoleRequestDto, JobRoleResponseDto } from "../dtos/jobRoleDto.js";
 import prisma from "../prismaClient.js";
-import type { JobRole } from "@prisma/client";
 
 
 export class JobRoleService {
-    async findAll(): Promise<JobRole[]> {
-        return prisma.jobRole.findMany();
+
+
+    public async findAll(): Promise<JobRoleResponseDto[]> {
+
+        const jobRoles = await prisma.jobRole.findMany();
+
+        return jobRoles.map(job => ({
+            id: job.jobRoleId,
+            roleName: job.roleName,
+            location: job.location,
+            capabilityId: job.capabilityId,
+            bandId: job.bandId,
+            closingDate: job.closingDate,
+            status: job.status,
+        }));
+
     }
 
-    async findById(id: number): Promise<JobRole | null> {
-        return prisma.jobRole.findUnique({
-            where: { jobRoleId: id },
-        });
-    }
+    public async findById(id: number): Promise<JobRoleResponseDto | null> {
 
-    async create(job: CreateJobRoleRequestDto): Promise<JobRole> {
-        return prisma.jobRole.create({
-            data: {
-                roleName: job.jobRoleName,
-                location: job.location,
-                capabilityId: job.capabilityId,
-                bandId: job.bandId,
-                closingDate: new Date(job.closingDate),
-                status: job.status,
-            },
-        });
-    }
-
-    async update(id: number, job: CreateJobRoleRequestDto): Promise<JobRole | null> {
-        const existingJob = await prisma.jobRole.findUnique({
+        const jobRole = await prisma.jobRole.findUnique({
             where: { jobRoleId: id },
         });
 
-        if (!existingJob) {
+        if (!jobRole) {
             return null;
         }
 
-        return prisma.jobRole.update({
-            where: { jobRoleId: id },
-            data: {
-                roleName: job.jobRoleName,
-                location: job.location,
-                capabilityId: job.capabilityId,
-                bandId: job.bandId,
-                closingDate: new Date(job.closingDate),
-                status: job.status,
-            },
-        });
+        return {
+            id: jobRole.jobRoleId,
+            roleName: jobRole.roleName,
+            location: jobRole.location,
+            capabilityId: jobRole.capabilityId,
+            bandId: jobRole.bandId,
+            closingDate: jobRole.closingDate,
+            status: jobRole.status,
+        };
     }
 
-    async delete(id: number): Promise<boolean> {
-        const existingJob = await prisma.jobRole.findUnique({
-            where: { jobRoleId: id },
-        });
 
-        if (!existingJob) {
-            return false;
-        }
 
-        await prisma.jobRole.delete({
-            where: { jobRoleId: id },
-        });
+    public async create(data: CreateJobRoleRequestDto): Promise<JobRoleResponseDto> {
+        const createdJobRole = await prisma.jobRole.create({ data });
 
-        return true;
+        return {
+            id: createdJobRole.jobRoleId,
+            roleName: createdJobRole.roleName,
+            location: createdJobRole.location,
+            capabilityId: createdJobRole.capabilityId,
+            bandId: createdJobRole.bandId,
+            closingDate: createdJobRole.closingDate,
+            status: createdJobRole.status,
+        };
     }
+
 }

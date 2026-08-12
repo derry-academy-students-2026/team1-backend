@@ -2,20 +2,20 @@
 
 export interface JobRoleResponseDto {
     id: number;
-    jobRoleName: string;
+    roleName: string;
     location: string;
     capabilityId: number;
     bandId: number;
-    closingDate: string;
+    closingDate: Date;
     status: string;
 }
 
 export interface CreateJobRoleRequestDto {
-    jobRoleName: string;
+    roleName: string;
     location: string;
     capabilityId: number;
     bandId: number;
-    closingDate: string;
+    closingDate: Date;
     status: string;
 }
 
