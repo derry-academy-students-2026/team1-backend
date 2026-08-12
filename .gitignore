@@ -27,3 +27,6 @@ Thumbs.db
 *.tsbuildinfo
 
 /src/generated/prisma
+
+# Code review artifacts
+code_reviews/
