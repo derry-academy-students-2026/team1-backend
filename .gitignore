@@ -33,3 +33,6 @@ code_reviews/
 
 # .agents file
 .agents/
+
+# .windsurf file
+.windsurf/
