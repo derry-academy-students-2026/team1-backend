@@ -30,3 +30,6 @@ Thumbs.db
 
 # Code review artifacts
 code_reviews/
+
+# .agents file
+.agents/
