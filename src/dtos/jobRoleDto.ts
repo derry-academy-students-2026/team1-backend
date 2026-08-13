@@ -8,6 +8,11 @@ export interface BandDto {
 	name: string;
 }
 
+export interface StatusDto {
+	id: number;
+	name: string;
+}
+
 export interface JobRoleResponseDto {
 	id: number;
 	roleName: string;
@@ -15,7 +20,7 @@ export interface JobRoleResponseDto {
 	capability: CapabilityDto;
 	band: BandDto;
 	closingDate: Date;
-	status: string;
+	status: StatusDto;
 }
 
 export interface CreateJobRoleRequestDto {
@@ -24,5 +29,19 @@ export interface CreateJobRoleRequestDto {
 	capabilityId: number;
 	bandId: number;
 	closingDate: Date;
-	status: string;
+	statusId: number;
+}
+
+export interface JobRoleDetailedResponseDto {
+	id: number;
+	roleName: string;
+	location: string;
+	capability: CapabilityDto;
+	band: BandDto;
+	closingDate: Date;
+	status: StatusDto;
+	description: string;
+	responsibilities: string;
+	sharepointUrl: string;
+	numberOfOpenPositions: number;
 }

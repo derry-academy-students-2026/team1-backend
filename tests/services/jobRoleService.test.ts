@@ -18,7 +18,10 @@ const sampleDbJobRole = {
 	roleName: "Software Engineer",
 	location: "Belfast",
 	closingDate: new Date("2026-12-31T00:00:00.000Z"),
-	status: "open",
+	status: {
+		statusId: 1,
+		statusName: "open",
+	},
 	capability: {
 		capabilityId: 2,
 		capabilityName: "Engineering",
@@ -27,6 +30,10 @@ const sampleDbJobRole = {
 		bandId: 3,
 		bandName: "Band 3",
 	},
+	description: "We are looking for a Software Engineer to join our team",
+	responsibilities: "Develop and maintain backend services",
+	sharepointUrl: "https://sharepoint.example.com/roles/software-engineer",
+	numberOfOpenPositions: 2,
 };
 
 describe("JobRoleService", () => {
@@ -46,11 +53,16 @@ describe("JobRoleService", () => {
 			include: {
 				capability: true,
 				band: true,
+				status: true,
 			},
 			where: {
 				status: {
-					equals: "open",
-					mode: "insensitive",
+					is: {
+						statusName: {
+							equals: "open",
+							mode: "insensitive",
+						},
+					},
 				},
 			},
 		});
@@ -69,7 +81,10 @@ describe("JobRoleService", () => {
 					name: "Band 3",
 				},
 				closingDate: new Date("2026-12-31T00:00:00.000Z"),
-				status: "open",
+				status: {
+					id: 1,
+					name: "open",
+				},
 			},
 		]);
 	});
@@ -85,6 +100,7 @@ describe("JobRoleService", () => {
 			include: {
 				capability: true,
 				band: true,
+				status: true,
 			},
 		});
 		expect(result).toBeNull();
@@ -111,7 +127,36 @@ describe("JobRoleService", () => {
 				name: "Band 3",
 			},
 			closingDate: new Date("2026-12-31T00:00:00.000Z"),
-			status: "open",
+			status: {
+				id: 1,
+				name: "open",
+			},
+			description: "We are looking for a Software Engineer to join our team",
+			responsibilities: "Develop and maintain backend services",
+			sharepointUrl: "https://sharepoint.example.com/roles/software-engineer",
+			numberOfOpenPositions: 2,
 		});
+	});
+
+	it("findAllOpen should throw when database query fails", async () => {
+		const dbError = new Error("Database connection failed");
+		vi.mocked(prisma.jobRole.findMany).mockRejectedValue(dbError);
+
+		const service = new JobRoleService();
+
+		await expect(service.findAllOpen()).rejects.toThrow(
+			"Database connection failed",
+		);
+	});
+
+	it("findById should throw when database query fails", async () => {
+		const dbError = new Error("Database connection failed");
+		vi.mocked(prisma.jobRole.findUnique).mockRejectedValue(dbError);
+
+		const service = new JobRoleService();
+
+		await expect(service.findById(1)).rejects.toThrow(
+			"Database connection failed",
+		);
 	});
 });
