@@ -52,7 +52,10 @@ const fileFormat = winston.format.combine(
 	winston.format.json(),
 );
 
-const transports = [new winston.transports.Console({ format: consoleFormat })];
+//const transports = [new winston.transports.Console({ format: consoleFormat })];
+const transports: winston.transport[] = [
+	new winston.transports.Console({ format: consoleFormat }),
+];
 
 if (process.env.LOG_TO_FILE === "true") {
 	transports.push(

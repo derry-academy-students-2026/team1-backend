@@ -3,6 +3,12 @@ import type { NextFunction, Request, Response } from "express";
 import Logger from "../lib/logger.js";
 import { getHealthStatus } from "../services/healthService.js";
 
+/**
+ * Handles the request to retrieve the health status of the application.
+ * @param _req http request object
+ * @param res http response object
+ * @param next next function for error handling
+ */
 export const getHealth = (
 	_req: Request,
 	res: Response,

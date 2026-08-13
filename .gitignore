@@ -25,3 +25,14 @@ Thumbs.db
 
 # TypeScript cache
 *.tsbuildinfo
+
+/src/generated/prisma
+
+# Code review artifacts
+code_reviews/
+
+# .agents file
+.agents/
+
+# .windsurf file
+.windsurf/
