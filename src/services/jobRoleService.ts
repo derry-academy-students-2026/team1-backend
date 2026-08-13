@@ -1,6 +1,12 @@
-import type { JobRoleResponseDto, JobRoleDetailedResponseDto } from "../dtos/jobRoleDto.js";
+import type {
+	JobRoleDetailedResponseDto,
+	JobRoleResponseDto,
+} from "../dtos/jobRoleDto.js";
 import Logger from "../lib/logger.js";
-import { mapToJobRoleResponseDto, mapToJobRoleDetailedResponseDto } from "../mappers/jobRoleMapper.js";
+import {
+	mapToJobRoleDetailedResponseDto,
+	mapToJobRoleResponseDto,
+} from "../mappers/jobRoleMapper.js";
 import prisma from "../prismaClient.js";
 
 /**
@@ -56,12 +62,14 @@ export class JobRoleService {
 	}
 
 	/**
-	 * Finds a job role by its ID and returns it as a JobRoleResponseDto object.
+	 * Finds a job role by its ID and returns it as a JobRoleDetailedResponseDto object with complete job information.
 	 * @param id The ID of the job role to find.
-	 * @returns A promise that resolves to a JobRoleResponseDto object representing the job role, or null if not found.
+	 * @returns A promise that resolves to a JobRoleDetailedResponseDto object representing the job role with full details, or null if not found.
 	 * @throws Will throw an error if the database query fails.
 	 */
-	public async findById(id: number): Promise<JobRoleDetailedResponseDto | null> {
+	public async findById(
+		id: number,
+	): Promise<JobRoleDetailedResponseDto | null> {
 		Logger.debug(`🔍 Looking up job role with ID: ${id}`);
 
 		try {

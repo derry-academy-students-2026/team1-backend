@@ -62,7 +62,19 @@ describe("JobRoleController", () => {
 	});
 
 	it("getById should return 200 when job role exists", async () => {
-		const role = { id: 12, roleName: "Platform Engineer" };
+		const role = {
+			id: 12,
+			roleName: "Platform Engineer",
+			location: "Belfast",
+			capability: { id: 1, name: "Engineering" },
+			band: { id: 2, name: "Band 3" },
+			closingDate: new Date("2026-12-31"),
+			status: { id: 1, name: "open" },
+			description: "We are looking for a Platform Engineer",
+			responsibilities: "Design and maintain infrastructure",
+			sharepointUrl: "https://sharepoint.example.com/roles/platform-engineer",
+			numberOfOpenPositions: 1,
+		};
 		const service = {
 			findAllOpen: vi.fn(),
 			findById: vi.fn().mockResolvedValue(role),
@@ -75,5 +87,36 @@ describe("JobRoleController", () => {
 		expect(service.findById).toHaveBeenCalledWith(12);
 		expect(res.status).toHaveBeenCalledWith(200);
 		expect(res.json).toHaveBeenCalledWith(role);
+	});
+
+	it("getAllOpen should return 500 on service error", async () => {
+		const service = {
+			findAllOpen: vi.fn().mockRejectedValue(new Error("Database error")),
+			findById: vi.fn(),
+		};
+		const controller = new JobRoleController(service as never);
+		const res = createMockResponse();
+
+		await controller.getAllOpen(
+			{ params: { status: "open" } } as never,
+			res as never,
+		);
+
+		expect(res.status).toHaveBeenCalledWith(500);
+		expect(res.json).toHaveBeenCalledWith({ error: "Failed to fetch job roles" });
+	});
+
+	it("getById should return 500 on service error", async () => {
+		const service = {
+			findAllOpen: vi.fn(),
+			findById: vi.fn().mockRejectedValue(new Error("Database error")),
+		};
+		const controller = new JobRoleController(service as never);
+		const res = createMockResponse();
+
+		await controller.getById({ params: { id: "12" } } as never, res as never);
+
+		expect(res.status).toHaveBeenCalledWith(500);
+		expect(res.json).toHaveBeenCalledWith({ error: "Failed to fetch job role" });
 	});
 });
