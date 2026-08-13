@@ -18,7 +18,10 @@ const sampleDbJobRole = {
 	roleName: "Software Engineer",
 	location: "Belfast",
 	closingDate: new Date("2026-12-31T00:00:00.000Z"),
-	status: "open",
+	status: {
+		statusId: 1,
+		statusName: "open",
+	},
 	capability: {
 		capabilityId: 2,
 		capabilityName: "Engineering",
@@ -46,6 +49,7 @@ describe("JobRoleService", () => {
 			include: {
 				capability: true,
 				band: true,
+				status: true,
 			},
 			where: {
 				status: {
@@ -69,7 +73,10 @@ describe("JobRoleService", () => {
 					name: "Band 3",
 				},
 				closingDate: new Date("2026-12-31T00:00:00.000Z"),
-				status: "open",
+				status: {
+					id: 1,
+					name: "open",
+				},
 			},
 		]);
 	});
@@ -85,6 +92,7 @@ describe("JobRoleService", () => {
 			include: {
 				capability: true,
 				band: true,
+				status: true,
 			},
 		});
 		expect(result).toBeNull();
@@ -111,7 +119,10 @@ describe("JobRoleService", () => {
 				name: "Band 3",
 			},
 			closingDate: new Date("2026-12-31T00:00:00.000Z"),
-			status: "open",
+			status: {
+				id: 1,
+				name: "open",
+			},
 		});
 	});
 });

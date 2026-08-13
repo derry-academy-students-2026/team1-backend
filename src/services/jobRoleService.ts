@@ -1,42 +1,7 @@
-import type { JobRoleResponseDto } from "../dtos/jobRoleDto.js";
+import type { JobRoleResponseDto, JobRoleDetailedResponseDto } from "../dtos/jobRoleDto.js";
 import Logger from "../lib/logger.js";
+import { mapToJobRoleResponseDto, mapToJobRoleDetailedResponseDto } from "../mappers/jobRoleMapper.js";
 import prisma from "../prismaClient.js";
-
-/**
- * Maps a job role from the database to a response DTO.
- * @param jobRole The job role object retrieved from the database.
- * @returns A JobRoleResponseDto object.
- */
-
-const mapToJobRoleResponseDto = (jobRole: {
-	jobRoleId: number;
-	roleName: string;
-	location: string;
-	closingDate: Date;
-	status: string;
-	capability: {
-		capabilityId: number;
-		capabilityName: string;
-	};
-	band: {
-		bandId: number;
-		bandName: string;
-	};
-}): JobRoleResponseDto => ({
-	id: jobRole.jobRoleId,
-	roleName: jobRole.roleName,
-	location: jobRole.location,
-	capability: {
-		id: jobRole.capability.capabilityId,
-		name: jobRole.capability.capabilityName,
-	},
-	band: {
-		id: jobRole.band.bandId,
-		name: jobRole.band.bandName,
-	},
-	closingDate: jobRole.closingDate,
-	status: jobRole.status,
-});
 
 /**
  * Service class for managing job roles. Provides methods to find all open job roles, find a job role by ID, and create a new job role.
@@ -58,12 +23,17 @@ export class JobRoleService {
 				include: {
 					capability: true,
 					band: true,
+					status: true,
 				},
 
 				where: {
 					status: {
-						equals: "open",
-						mode: "insensitive",
+						is: {
+							statusName: {
+								equals: "open",
+								mode: "insensitive",
+							},
+						},
 					},
 				},
 			});
@@ -91,7 +61,7 @@ export class JobRoleService {
 	 * @returns A promise that resolves to a JobRoleResponseDto object representing the job role, or null if not found.
 	 * @throws Will throw an error if the database query fails.
 	 */
-	public async findById(id: number): Promise<JobRoleResponseDto | null> {
+	public async findById(id: number): Promise<JobRoleDetailedResponseDto | null> {
 		Logger.debug(`🔍 Looking up job role with ID: ${id}`);
 
 		try {
@@ -100,6 +70,7 @@ export class JobRoleService {
 				include: {
 					capability: true,
 					band: true,
+					status: true,
 				},
 			});
 
@@ -111,7 +82,7 @@ export class JobRoleService {
 			Logger.info(
 				`✅ Successfully retrieved job role: "${jobRole.roleName}" (ID: ${id})`,
 			);
-			return mapToJobRoleResponseDto(jobRole);
+			return mapToJobRoleDetailedResponseDto(jobRole);
 		} catch (error) {
 			Logger.error(
 				`❌ Failed to fetch job role ID ${id}: ${error instanceof Error ? error.message : String(error)}`,
