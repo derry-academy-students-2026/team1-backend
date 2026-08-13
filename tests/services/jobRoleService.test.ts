@@ -144,7 +144,9 @@ describe("JobRoleService", () => {
 
 		const service = new JobRoleService();
 
-		await expect(service.findAllOpen()).rejects.toThrow("Database connection failed");
+		await expect(service.findAllOpen()).rejects.toThrow(
+			"Database connection failed",
+		);
 	});
 
 	it("findById should throw when database query fails", async () => {
@@ -153,6 +155,8 @@ describe("JobRoleService", () => {
 
 		const service = new JobRoleService();
 
-		await expect(service.findById(1)).rejects.toThrow("Database connection failed");
+		await expect(service.findById(1)).rejects.toThrow(
+			"Database connection failed",
+		);
 	});
 });

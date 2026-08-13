@@ -103,7 +103,9 @@ describe("JobRoleController", () => {
 		);
 
 		expect(res.status).toHaveBeenCalledWith(500);
-		expect(res.json).toHaveBeenCalledWith({ error: "Failed to fetch job roles" });
+		expect(res.json).toHaveBeenCalledWith({
+			error: "Failed to fetch job roles",
+		});
 	});
 
 	it("getById should return 500 on service error", async () => {
@@ -117,6 +119,8 @@ describe("JobRoleController", () => {
 		await controller.getById({ params: { id: "12" } } as never, res as never);
 
 		expect(res.status).toHaveBeenCalledWith(500);
-		expect(res.json).toHaveBeenCalledWith({ error: "Failed to fetch job role" });
+		expect(res.json).toHaveBeenCalledWith({
+			error: "Failed to fetch job role",
+		});
 	});
 });
