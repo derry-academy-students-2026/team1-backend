@@ -28,19 +28,22 @@ const colorCodes = {
 
 const resetColor = "\u001b[0m";
 
+/** Applies the configured ANSI color to a formatted log line. */
 const colorLine = (level: string, line: string): string => {
 	const color = colorCodes[level as keyof typeof colorCodes];
 	return color ? `${color}${line}${resetColor}` : line;
 };
 
-// Show all logs in development; only warn+ in production
+// Show all logs in development; keep HTTP access logs and warnings in production
+/** Returns the minimum Winston level for the current runtime environment. */
 const level = () => {
 	const env = process.env.NODE_ENV || "development";
-	return env === "development" ? "debug" : "warn";
+	return env === "development" ? "debug" : "http";
 };
 
 const consoleFormat = winston.format.combine(
 	winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:SSS" }),
+	/** Formats console entries with a timestamp, level, and color. */
 	winston.format.printf((info) => {
 		const line = `[${info.timestamp}] [${info.level}]: ${info.message}`;
 		return colorLine(info.level, line);

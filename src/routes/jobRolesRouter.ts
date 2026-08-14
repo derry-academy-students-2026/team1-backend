@@ -8,7 +8,15 @@ const controller = new JobRoleController(new JobRoleService());
 
 router.use(requireAuth);
 
-router.get("/", (req, res) => controller.getAllOpen(req, res));
-router.get("/:id", (req, res) => controller.getById(req, res));
+/** Delegates collection requests to the job-role controller. */
+const getAllOpenHandler = (req: express.Request, res: express.Response) =>
+	controller.getAllOpen(req, res);
+
+/** Delegates individual job-role requests to the job-role controller. */
+const getByIdHandler = (req: express.Request, res: express.Response) =>
+	controller.getById(req, res);
+
+router.get("/", getAllOpenHandler);
+router.get("/:id", getByIdHandler);
 
 export default router;

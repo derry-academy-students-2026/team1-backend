@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from "express";
+	import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { getJwtSecret } from "../config/authConfig.js";
 import type { JwtPayloadDto } from "../dtos/authDto.js";
@@ -41,6 +41,11 @@ export const requireAuth = (
 
 	try {
 		const payload = jwt.verify(token, getJwtSecret()) as JwtPayloadDto;
+
+		if (typeof payload.userId !== "number" || typeof payload.email !== "string") {
+			throw new Error("Invalid token payload");
+		}
+
 		req.user = { userId: payload.userId, email: payload.email };
 		Logger.debug(`🔓 [AUTH] Verified token for user ID: ${payload.userId}`);
 		next();

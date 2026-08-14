@@ -9,6 +9,7 @@ import prisma from "../prismaClient.js";
 // costs the same time as a wrong password and cannot be enumerated.
 let decoyHash: string | null = null;
 
+/** Lazily creates the hash used to equalize missing-user login timing. */
 const getDecoyHash = async (): Promise<string> => {
 	if (!decoyHash) {
 		decoyHash = await argon2.hash("no-user-matched-placeholder");
@@ -34,26 +35,35 @@ export class AuthService {
 	): Promise<LoginResponseDto | null> {
 		Logger.debug("🔐 Attempting to authenticate user...");
 
-		const user = await prisma.user.findUnique({
-			where: { email: email.trim().toLowerCase() },
-		});
+		try {
+			const user = await prisma.user.findUnique({
+				where: { email: email.trim().toLowerCase() },
+			});
 
-		if (!user) {
-			await argon2.verify(await getDecoyHash(), password).catch(() => false);
-			Logger.warn("⚠️  Authentication failed: no matching credentials");
-			return null;
+			if (!user) {
+				await argon2.verify(await getDecoyHash(), password).catch(() => false);
+				Logger.warn("⚠️  Authentication failed: no matching credentials");
+				return null;
+			}
+
+			const passwordMatches = await argon2.verify(user.passwordHash, password);
+
+			if (!passwordMatches) {
+				Logger.warn("⚠️  Authentication failed: no matching credentials");
+				return null;
+			}
+
+			Logger.info(`✅ Authenticated user ID: ${user.userId}`);
+
+			return {
+				token: this.signToken({ userId: user.userId, email: user.email }),
+			};
+		} catch (error) {
+			Logger.error(
+				`❌ Authentication operation failed: ${error instanceof Error ? error.message : String(error)}`,
+			);
+			throw error;
 		}
-
-		const passwordMatches = await argon2.verify(user.passwordHash, password);
-
-		if (!passwordMatches) {
-			Logger.warn("⚠️  Authentication failed: no matching credentials");
-			return null;
-		}
-
-		Logger.info(`✅ Authenticated user ID: ${user.userId}`);
-
-		return { token: this.signToken({ userId: user.userId, email: user.email }) };
 	}
 
 	/**

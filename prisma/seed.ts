@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 const SEED_USER_EMAIL = "test1@example.com";
 const SEED_USER_PASSWORD = "Password123!";
 
+/** Recreates reference data and the test user in the development database. */
 async function main() {
 	await prisma.jobRole.deleteMany();
 	await prisma.status.deleteMany();
@@ -79,4 +80,7 @@ async function main() {
 	});
 }
 
-main().finally(() => prisma.$disconnect());
+/** Disconnects Prisma after the seed operation completes. */
+const disconnect = (): Promise<void> => prisma.$disconnect();
+
+main().finally(disconnect);
