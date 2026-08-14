@@ -42,7 +42,10 @@ export const requireAuth = (
 	try {
 		const payload = jwt.verify(token, getJwtSecret()) as JwtPayloadDto;
 
-		if (typeof payload.userId !== "number" || typeof payload.email !== "string") {
+		if (
+			typeof payload.userId !== "number" ||
+			typeof payload.email !== "string"
+		) {
 			throw new Error("Invalid token payload");
 		}
 
