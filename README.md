@@ -202,7 +202,7 @@ Automatically fix linting issues:
 npm run lint:fix
 ```
 
-## Linting guide
+## Logging guide
 
 Read LOGGING_GUIDE.md for further information on where logs have been added and why within project alongside best practices 
 (/team-project/team1-backend/LOGGING_GUIDE.md)
