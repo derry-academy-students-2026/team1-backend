@@ -53,6 +53,7 @@ Create a `.env` file in the root directory:
 ```bash
 DATABASE_URL="postgresql://postgres:password@localhost:4432/jobRole"
 NODE_ENV="development"
+PORT=4000
 ```
 
 5. Run database migrations:
@@ -77,7 +78,7 @@ Start the development server with hot-reload:
 npm run dev
 ```
 
-The API will be available at `http://localhost:3000` (or the port specified in your configuration).
+The API will be available at `http://localhost:4000` (or the port specified in your configuration).
 
 ### Production Mode
 
@@ -200,6 +201,11 @@ Automatically fix linting issues:
 ```bash
 npm run lint:fix
 ```
+
+## Linting guide
+
+Read LOGGING_GUIDE.md for further information on where logs have been added and why within project alongside best practices 
+(/team-project/team1-backend/LOGGING_GUIDE.md)
 
 ## Project Structure
 
