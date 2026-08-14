@@ -36,3 +36,6 @@ code_reviews/
 
 # .windsurf file
 .windsurf/
+
+# Skills lock file
+skills-lock.json
