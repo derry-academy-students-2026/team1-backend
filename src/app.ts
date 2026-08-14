@@ -1,6 +1,7 @@
 import express from "express";
 import morganMiddleware from "./config/morganMiddleware.js";
 import Logger from "./lib/logger.js";
+import authRouter from "./routes/authRouter.js";
 import healthRouter from "./routes/healthRouter.js";
 import jobRolesRouter from "./routes/jobRolesRouter.js";
 
@@ -14,6 +15,8 @@ app.use(morganMiddleware);
 Logger.info("Morgan HTTP middleware registered");
 
 app.use(healthRouter);
+app.use("/auth", authRouter);
+Logger.info("Auth routes mounted at /auth");
 app.use("/job-roles", jobRolesRouter);
 Logger.info("Job routes mounted at /job-roles");
 

@@ -1,6 +1,10 @@
 import { PrismaClient } from "@prisma/client";
+import argon2 from "argon2";
 
 const prisma = new PrismaClient();
+
+const SEED_USER_EMAIL = "test1@example.com";
+const SEED_USER_PASSWORD = "Password123!";
 
 async function main() {
 	await prisma.jobRole.deleteMany();
@@ -64,6 +68,14 @@ async function main() {
 			},
 		],
 		skipDuplicates: true,
+	});
+
+	const passwordHash = await argon2.hash(SEED_USER_PASSWORD);
+
+	await prisma.user.upsert({
+		where: { email: SEED_USER_EMAIL },
+		update: { passwordHash },
+		create: { email: SEED_USER_EMAIL, passwordHash },
 	});
 }
 

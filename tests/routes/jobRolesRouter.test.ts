@@ -1,4 +1,5 @@
 import express from "express";
+import jwt from "jsonwebtoken";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -20,16 +21,26 @@ vi.mock("../../src/controllers/jobRoleController.js", () => ({
 
 import jobRolesRouter from "../../src/routes/jobRolesRouter.js";
 
+const TEST_SECRET = "test-secret";
+
 describe("jobRolesRouter", () => {
+	let token: string;
+
 	beforeEach(() => {
 		vi.clearAllMocks();
+		process.env.JWT_SECRET = TEST_SECRET;
+		token = jwt.sign({ userId: 1, email: "test1@example.com" }, TEST_SECRET, {
+			expiresIn: "1h",
+		});
 	});
 
 	it("GET /job-roles should delegate to getAllOpen", async () => {
 		const app = express();
 		app.use("/job-roles", jobRolesRouter);
 
-		const response = await request(app).get("/job-roles");
+		const response = await request(app)
+			.get("/job-roles")
+			.set("Authorization", `Bearer ${token}`);
 
 		expect(response.status).toBe(200);
 		expect(response.body).toEqual([{ id: 1, roleName: "Engineer" }]);
@@ -40,10 +51,23 @@ describe("jobRolesRouter", () => {
 		const app = express();
 		app.use("/job-roles", jobRolesRouter);
 
-		const response = await request(app).get("/job-roles/1");
+		const response = await request(app)
+			.get("/job-roles/1")
+			.set("Authorization", `Bearer ${token}`);
 
 		expect(response.status).toBe(200);
 		expect(response.body).toEqual({ id: 1, roleName: "Engineer" });
 		expect(mockGetById).toHaveBeenCalledTimes(1);
+	});
+
+	it("GET /job-roles should return 401 without a token", async () => {
+		const app = express();
+		app.use("/job-roles", jobRolesRouter);
+
+		const response = await request(app).get("/job-roles");
+
+		expect(response.status).toBe(401);
+		expect(response.body).toEqual({ message: "Invalid token" });
+		expect(mockGetAllOpen).not.toHaveBeenCalled();
 	});
 });

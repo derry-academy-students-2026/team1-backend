@@ -1,9 +1,12 @@
 import express from "express";
 import { JobRoleController } from "../controllers/jobRoleController.js";
+import { requireAuth } from "../middleware/authMiddleware.js";
 import { JobRoleService } from "../services/jobRoleService.js";
 
 const router = express.Router();
 const controller = new JobRoleController(new JobRoleService());
+
+router.use(requireAuth);
 
 router.get("/", (req, res) => controller.getAllOpen(req, res));
 router.get("/:id", (req, res) => controller.getById(req, res));

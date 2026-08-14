@@ -59,3 +59,12 @@ model Status {
   @@map("statuses")
 }
 
+model User {
+  userId       Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  @@map("users")
+}
+
