@@ -10,14 +10,18 @@ import { getHealthStatus } from "../services/healthService.js";
  * @param next next function for error handling
  */
 export const getHealth = (
-	_req: Request,
+	req: Request,
 	res: Response,
 	next: NextFunction,
 ): void => {
 	try {
+		const requestLabel =
+			req.method && req.path ? `${req.method} ${req.path}` : "health endpoint";
+		Logger.debug(`🌐 [${requestLabel}] Health check requested`);
 		const healthStatus = getHealthStatus();
 
 		Logger.info("Health endpoint accessed");
+		Logger.info(`📤 [${requestLabel}] Health check completed | Status: 200`);
 		res.json(healthStatus);
 	} catch (error) {
 		if (error instanceof Error) {

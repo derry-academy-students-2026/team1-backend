@@ -14,12 +14,12 @@ describe("Logger", () => {
 		expect(Logger.level).toBe("debug");
 	});
 
-	it("should set warn level in production environment", async () => {
+	it("should set http level in production environment", async () => {
 		process.env.NODE_ENV = "production";
 
 		const { default: Logger } = await import("../../src/lib/logger.js");
 
-		expect(Logger.level).toBe("warn");
+		expect(Logger.level).toBe("http");
 	});
 
 	it("should have all log level methods available", async () => {

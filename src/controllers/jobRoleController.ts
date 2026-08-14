@@ -11,7 +11,7 @@ export class JobRoleController {
 
 	/**
 	 * Handles the request to retrieve all open job roles.
-	 * @param req http request object
+	 * @param _req http request object
 	 * @param res http response object
 	 */
 

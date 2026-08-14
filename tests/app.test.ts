@@ -1,5 +1,6 @@
+import jwt from "jsonwebtoken";
 import request from "supertest";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { app } from "../src/app.js";
 
 describe("GET /health", () => {
@@ -28,10 +29,38 @@ describe("Error Handling", () => {
 	});
 
 	it("should return 500 with internal server error response", async () => {
+		process.env.JWT_SECRET = "test-secret";
+		const token = jwt.sign(
+			{ userId: 1, email: "test1@example.com" },
+			"test-secret",
+			{ expiresIn: "1h" },
+		);
+
 		const response = await request(app)
 			.get("/job-roles/invalid")
+			.set("Authorization", `Bearer ${token}`)
 			.set("Accept", "application/json");
 
+		expect(response.status).toBe(400);
+	});
+});
+
+describe("Route protection", () => {
+	beforeAll(() => {
+		process.env.JWT_SECRET = "test-secret";
+	});
+
+	it("should return 401 for /job-roles without a token", async () => {
+		const response = await request(app).get("/job-roles");
+
+		expect(response.status).toBe(401);
+		expect(response.body).toEqual({ message: "Invalid token" });
+	});
+
+	it("should keep POST /auth/login public", async () => {
+		const response = await request(app).post("/auth/login").send({});
+
+		expect(response.status).not.toBe(404);
 		expect(response.status).toBe(400);
 	});
 });
