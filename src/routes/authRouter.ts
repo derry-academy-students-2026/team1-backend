@@ -8,6 +8,8 @@ const controller = new AuthController(new AuthService());
 /** Delegates login requests to the authentication controller. */
 const loginHandler = (req: express.Request, res: express.Response) =>
 	controller.login(req, res);
+
+/** Delegates registration requests to the authentication controller. */
 const registerHandler = (req: express.Request, res: express.Response) =>
 	controller.register(req, res);
 
