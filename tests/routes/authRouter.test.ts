@@ -2,15 +2,19 @@ import express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockLogin } = vi.hoisted(() => ({
+const { mockLogin, mockRegister } = vi.hoisted(() => ({
 	mockLogin: vi.fn((_req, res) => {
 		res.status(200).json({ token: "signed.jwt.value" });
+	}),
+	mockRegister: vi.fn((_req, res) => {
+		res.status(201).json({ token: "signed.jwt.value" });
 	}),
 }));
 
 vi.mock("../../src/controllers/authController.js", () => ({
 	AuthController: class {
 		login = mockLogin;
+		register = mockRegister;
 	},
 }));
 
@@ -43,5 +47,19 @@ describe("authRouter", () => {
 
 		expect(response.status).toBe(404);
 		expect(mockLogin).not.toHaveBeenCalled();
+	});
+
+	it("POST /auth/register should delegate to register", async () => {
+		const app = express();
+		app.use(express.json());
+		app.use("/auth", authRouter);
+
+		const response = await request(app)
+			.post("/auth/register")
+			.send({ email: "new@example.com", password: "Password123!" });
+
+		expect(response.status).toBe(201);
+		expect(response.body).toEqual({ token: "signed.jwt.value" });
+		expect(mockRegister).toHaveBeenCalledTimes(1);
 	});
 });

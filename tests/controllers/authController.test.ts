@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthController } from "../../src/controllers/authController.js";
+import { RegistrationError } from "../../src/services/authService.js";
 
 const createMockResponse = () => {
 	const json = vi.fn();
@@ -97,6 +98,75 @@ describe("AuthController", () => {
 		expect(res.status).toHaveBeenCalledWith(500);
 		expect(res.status(500).json).toHaveBeenCalledWith({
 			message: "Failed to process login",
+		});
+	});
+
+	it("should return 201 with the token on successful registration", async () => {
+		const register = vi.fn().mockResolvedValue({ token: "signed.jwt.value" });
+		const controller = new AuthController({ register } as never);
+		const res = createMockResponse();
+
+		await controller.register(
+			createRequest({ email: "new@example.com", password: "Password123!" }),
+			res,
+		);
+
+		expect(register).toHaveBeenCalledWith("new@example.com", "Password123!");
+		expect(res.status).toHaveBeenCalledWith(201);
+		expect(res.status(201).json).toHaveBeenCalledWith({
+			token: "signed.jwt.value",
+		});
+	});
+
+	it.each([
+		[
+			"invalid email",
+			new RegistrationError("INVALID_EMAIL"),
+			400,
+			"Enter a valid email address",
+		],
+		[
+			"weak password",
+			new RegistrationError("WEAK_PASSWORD"),
+			400,
+			"Password must be more than 8 characters and include an uppercase letter, a lowercase letter, and a special character",
+		],
+		[
+			"duplicate email",
+			new RegistrationError("DUPLICATE_EMAIL"),
+			409,
+			"An account with this email already exists",
+		],
+	])(
+		"should map registration %s errors",
+		async (_name, error, status, message) => {
+			const register = vi.fn().mockRejectedValue(error);
+			const controller = new AuthController({ register } as never);
+			const res = createMockResponse();
+
+			await controller.register(
+				createRequest({ email: "new@example.com", password: "Password123!" }),
+				res,
+			);
+
+			expect(res.status).toHaveBeenCalledWith(status);
+			expect(res.status(status).json).toHaveBeenCalledWith({ message });
+		},
+	);
+
+	it("should return the registration failure message when the service throws unexpectedly", async () => {
+		const register = vi.fn().mockRejectedValue(new Error("boom"));
+		const controller = new AuthController({ register } as never);
+		const res = createMockResponse();
+
+		await controller.register(
+			createRequest({ email: "new@example.com", password: "Password123!" }),
+			res,
+		);
+
+		expect(res.status).toHaveBeenCalledWith(500);
+		expect(res.status(500).json).toHaveBeenCalledWith({
+			message: "Failed to process registration",
 		});
 	});
 });
