@@ -1,16 +1,21 @@
+import { z } from "zod";
+
+/** Schema for the POST /auth/login request body. */
+export const LoginSchema = z.object({
+	email: z.string().trim().min(1, "Email is required"),
+	password: z.string().min(1, "Password is required"),
+});
+
+/** Schema for the POST /auth/register request body. */
+export const RegisterSchema = LoginSchema;
+
 /**
  * Shape of the POST /auth/login request body.
  */
-export interface LoginRequestDto {
-	email: string;
-	password: string;
-}
+export type LoginRequestDto = z.infer<typeof LoginSchema>;
 
 /** Shape of the POST /auth/register request body. */
-export interface RegisterRequestDto {
-	email: string;
-	password: string;
-}
+export type RegisterRequestDto = z.infer<typeof RegisterSchema>;
 
 /**
  * Shape of a successful POST /auth/login response.

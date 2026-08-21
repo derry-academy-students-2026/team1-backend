@@ -118,6 +118,14 @@ describe("AuthService", () => {
 		).rejects.toThrow("DB down");
 	});
 
+	it("should propagate non-Error rejections during login", async () => {
+		vi.mocked(prisma.user.findUnique).mockRejectedValue("db exploded" as never);
+
+		await expect(
+			service.login("test1@example.com", "Password123!"),
+		).rejects.toBe("db exploded");
+	});
+
 	it("should create a user with a hashed password and return a token", async () => {
 		vi.mocked(prisma.user.findUnique).mockResolvedValue(null as never);
 		vi.mocked(argon2.hash).mockImplementation((password) =>
@@ -155,6 +163,15 @@ describe("AuthService", () => {
 			service.register("test1@example.com", "Password123!"),
 		).rejects.toMatchObject({ code: "DUPLICATE_EMAIL" });
 		expect(prisma.user.create).not.toHaveBeenCalled();
+	});
+
+	it("should propagate non-Error rejections during registration", async () => {
+		vi.mocked(prisma.user.findUnique).mockResolvedValue(null as never);
+		vi.mocked(prisma.user.create).mockRejectedValue("db exploded" as never);
+
+		await expect(
+			service.register("new@example.com", "Password123!"),
+		).rejects.toBe("db exploded");
 	});
 
 	it.each([

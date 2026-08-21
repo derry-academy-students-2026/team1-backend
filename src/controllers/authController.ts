@@ -23,23 +23,8 @@ export class AuthController {
 	async login(req: Request, res: Response): Promise<void> {
 		Logger.debug("🌐 [POST /auth/login] Received login request");
 
-		const { email, password } = (req.body ?? {}) as Partial<LoginRequestDto>;
-
-		if (typeof email !== "string" || typeof password !== "string") {
-			Logger.warn(
-				"⚠️  [POST /auth/login] Request body missing email or password | Status: 400",
-			);
-			res.status(400).json({ message: "Email and password are required" });
-			return;
-		}
-
-		if (email.trim() === "" || password === "") {
-			Logger.warn(
-				"⚠️  [POST /auth/login] Empty email or password | Status: 400",
-			);
-			res.status(400).json({ message: "Email and password are required" });
-			return;
-		}
+		// Shape already validated by the validateBody(LoginSchema) middleware
+		const { email, password } = req.body as LoginRequestDto;
 
 		try {
 			const result = await this.service.login(email, password);
@@ -63,20 +48,8 @@ export class AuthController {
 	/** Handles applicant registration and maps service errors to the API contract. */
 	async register(req: Request, res: Response): Promise<void> {
 		Logger.debug("🌐 [POST /auth/register] Received registration request");
-		const { email, password } = (req.body ?? {}) as Partial<RegisterRequestDto>;
-
-		if (
-			typeof email !== "string" ||
-			typeof password !== "string" ||
-			email.trim() === "" ||
-			password === ""
-		) {
-			Logger.warn(
-				"⚠️  [POST /auth/register] Missing or empty credentials | Status: 400",
-			);
-			res.status(400).json({ message: "Email and password are required" });
-			return;
-		}
+		// Shape already validated by the validateBody(RegisterSchema) middleware
+		const { email, password } = req.body as RegisterRequestDto;
 
 		try {
 			const result = await this.service.register(email, password);

@@ -13,12 +13,28 @@ async function main() {
 	await prisma.capability.deleteMany();
 	await prisma.band.deleteMany();
 
-	const capability = await prisma.capability.create({
+	const engineering = await prisma.capability.create({
 		data: { capabilityName: "Engineering" },
 	});
 
-	const band = await prisma.band.create({
+	const data = await prisma.capability.create({
+		data: { capabilityName: "Data" },
+	});
+
+	const product = await prisma.capability.create({
+		data: { capabilityName: "Product" },
+	});
+
+	const band2 = await prisma.band.create({
 		data: { bandName: "Band 2" },
+	});
+
+	const band3 = await prisma.band.create({
+		data: { bandName: "Band 3" },
+	});
+
+	const band4 = await prisma.band.create({
+		data: { bandName: "Band 4" },
 	});
 
 	const openStatus = await prisma.status.create({
@@ -36,8 +52,8 @@ async function main() {
 				location: "Derry",
 				closingDate: new Date("2026-08-11"),
 				statusId: openStatus.statusId,
-				capabilityId: capability.capabilityId,
-				bandId: band.bandId,
+				capabilityId: engineering.capabilityId,
+				bandId: band2.bandId,
 				description: "Build and maintain product features.",
 				responsibilities: "Design, code, review, and deploy.",
 				sharepointUrl: "https://example.sharepoint.com/software-engineer",
@@ -48,8 +64,8 @@ async function main() {
 				location: "Gdansk",
 				closingDate: new Date("2026-08-14"),
 				statusId: openStatus.statusId,
-				capabilityId: capability.capabilityId,
-				bandId: band.bandId,
+				capabilityId: engineering.capabilityId,
+				bandId: band2.bandId,
 				description: "Own test strategy and quality gates.",
 				responsibilities: "Automate tests and report quality risks.",
 				sharepointUrl: "https://example.sharepoint.com/test-engineer",
@@ -60,11 +76,76 @@ async function main() {
 				location: "Belfast",
 				closingDate: new Date("2026-08-23"),
 				statusId: closedStatus.statusId,
-				capabilityId: capability.capabilityId,
-				bandId: band.bandId,
+				capabilityId: engineering.capabilityId,
+				bandId: band2.bandId,
 				description: "Coordinate delivery across teams.",
 				responsibilities: "Plan milestones and manage stakeholders.",
 				sharepointUrl: "https://example.sharepoint.com/project-manager",
+				numberOfOpenPositions: 1,
+			},
+			{
+				roleName: "Data Engineer",
+				location: "Belfast",
+				closingDate: new Date("2026-09-01"),
+				statusId: openStatus.statusId,
+				capabilityId: data.capabilityId,
+				bandId: band3.bandId,
+				description: "Build and maintain data pipelines for analytics.",
+				responsibilities:
+					"Design ETL jobs, model data, and ensure data quality.",
+				sharepointUrl: "https://example.sharepoint.com/data-engineer",
+				numberOfOpenPositions: 2,
+			},
+			{
+				roleName: "Frontend Developer",
+				location: "Derry",
+				closingDate: new Date("2026-08-30"),
+				statusId: openStatus.statusId,
+				capabilityId: engineering.capabilityId,
+				bandId: band2.bandId,
+				description: "Build accessible, responsive user interfaces.",
+				responsibilities:
+					"Implement UI components and collaborate with designers.",
+				sharepointUrl: "https://example.sharepoint.com/frontend-developer",
+				numberOfOpenPositions: 1,
+			},
+			{
+				roleName: "Product Manager",
+				location: "Belfast",
+				closingDate: new Date("2026-09-15"),
+				statusId: openStatus.statusId,
+				capabilityId: product.capabilityId,
+				bandId: band4.bandId,
+				description: "Own the roadmap for a customer-facing product area.",
+				responsibilities:
+					"Define requirements, prioritise backlog, and work with stakeholders.",
+				sharepointUrl: "https://example.sharepoint.com/product-manager",
+				numberOfOpenPositions: 1,
+			},
+			{
+				roleName: "DevOps Engineer",
+				location: "Gdansk",
+				closingDate: new Date("2026-09-05"),
+				statusId: openStatus.statusId,
+				capabilityId: engineering.capabilityId,
+				bandId: band3.bandId,
+				description: "Improve deployment pipelines and platform reliability.",
+				responsibilities:
+					"Maintain CI/CD, monitor infrastructure, and automate operations.",
+				sharepointUrl: "https://example.sharepoint.com/devops-engineer",
+				numberOfOpenPositions: 1,
+			},
+			{
+				roleName: "UX Designer",
+				location: "Derry",
+				closingDate: new Date("2026-08-01"),
+				statusId: closedStatus.statusId,
+				capabilityId: product.capabilityId,
+				bandId: band2.bandId,
+				description: "Design end-to-end user experiences for new features.",
+				responsibilities:
+					"Run user research, produce wireframes, and validate prototypes.",
+				sharepointUrl: "https://example.sharepoint.com/ux-designer",
 				numberOfOpenPositions: 1,
 			},
 		],
@@ -78,6 +159,33 @@ async function main() {
 		update: { passwordHash, role: "user" },
 		create: { email: SEED_USER_EMAIL, passwordHash, role: "user" },
 	});
+
+	const additionalUsers = [
+		{
+			email: "admin@example.com",
+			password: "AdminPass123!",
+			role: "admin",
+		},
+		{
+			email: "test2@example.com",
+			password: "Password123!",
+			role: "user",
+		},
+		{
+			email: "test3@example.com",
+			password: "Password123!",
+			role: "user",
+		},
+	];
+
+	for (const { email, password, role } of additionalUsers) {
+		const hash = await argon2.hash(password);
+		await prisma.user.upsert({
+			where: { email },
+			update: { passwordHash: hash, role },
+			create: { email, passwordHash: hash, role },
+		});
+	}
 }
 
 /** Disconnects Prisma after the seed operation completes. */

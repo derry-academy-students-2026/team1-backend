@@ -1,3 +1,10 @@
+import { z } from "zod";
+
+/** Schema for the GET/PUT/DELETE /job-roles/:id route params. */
+export const IdParamSchema = z.object({
+	id: z.string().regex(/^\d+$/, "ID must be a number"),
+});
+
 export interface CapabilityDto {
 	id: number;
 	name: string;

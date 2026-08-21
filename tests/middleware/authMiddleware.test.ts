@@ -62,6 +62,17 @@ describe("requireAuth", () => {
 		expect(response.body).toEqual({ message: "Invalid token" });
 	});
 
+	it("should return 401 for a validly signed token with a malformed payload", async () => {
+		const token = jwt.sign({ userId: "not-a-number", email: 123 }, TEST_SECRET);
+
+		const response = await request(buildApp())
+			.get("/protected")
+			.set("Authorization", `Bearer ${token}`);
+
+		expect(response.status).toBe(401);
+		expect(response.body).toEqual({ message: "Invalid token" });
+	});
+
 	it("should return 401 for a token signed with a different secret", async () => {
 		const token = jwt.sign({ userId: 1, email: "a@b.com" }, "other-secret");
 
