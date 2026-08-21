@@ -89,6 +89,15 @@ describe("JobRoleService", () => {
 		]);
 	});
 
+	it("findAllOpen should warn and return an empty array when no open roles exist", async () => {
+		vi.mocked(prisma.jobRole.findMany).mockResolvedValue([] as never);
+
+		const service = new JobRoleService();
+		const result = await service.findAllOpen();
+
+		expect(result).toEqual([]);
+	});
+
 	it("findById should return null when no job role is found", async () => {
 		vi.mocked(prisma.jobRole.findUnique).mockResolvedValue(null as never);
 
@@ -158,5 +167,25 @@ describe("JobRoleService", () => {
 		await expect(service.findById(1)).rejects.toThrow(
 			"Database connection failed",
 		);
+	});
+
+	it("findAllOpen should propagate non-Error rejections", async () => {
+		vi.mocked(prisma.jobRole.findMany).mockRejectedValue(
+			"db exploded" as never,
+		);
+
+		const service = new JobRoleService();
+
+		await expect(service.findAllOpen()).rejects.toBe("db exploded");
+	});
+
+	it("findById should propagate non-Error rejections", async () => {
+		vi.mocked(prisma.jobRole.findUnique).mockRejectedValue(
+			"db exploded" as never,
+		);
+
+		const service = new JobRoleService();
+
+		await expect(service.findById(1)).rejects.toBe("db exploded");
 	});
 });

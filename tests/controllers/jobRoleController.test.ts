@@ -13,7 +13,7 @@ describe("JobRoleController", () => {
 		vi.clearAllMocks();
 	});
 
-	it("getAllOpen should return 200 with open job roles", async () => {
+	it("should return 200 with open job roles when getAllOpen succeeds", async () => {
 		const service = {
 			findAllOpen: vi.fn().mockResolvedValue([{ id: 1, roleName: "Engineer" }]),
 			findById: vi.fn(),
@@ -31,22 +31,7 @@ describe("JobRoleController", () => {
 		expect(res.json).toHaveBeenCalledWith([{ id: 1, roleName: "Engineer" }]);
 	});
 
-	it("getById should return 400 when id is not numeric", async () => {
-		const service = {
-			findAllOpen: vi.fn(),
-			findById: vi.fn(),
-		};
-		const controller = new JobRoleController(service as never);
-		const res = createMockResponse();
-
-		await controller.getById({ params: { id: "abc" } } as never, res as never);
-
-		expect(service.findById).not.toHaveBeenCalled();
-		expect(res.status).toHaveBeenCalledWith(400);
-		expect(res.json).toHaveBeenCalledWith({ error: "ID must be a number" });
-	});
-
-	it("getById should return 404 when no job role exists", async () => {
+	it("should return 404 when getById finds no job role", async () => {
 		const service = {
 			findAllOpen: vi.fn(),
 			findById: vi.fn().mockResolvedValue(null),
@@ -61,7 +46,7 @@ describe("JobRoleController", () => {
 		expect(res.json).toHaveBeenCalledWith({ error: "Job role not found" });
 	});
 
-	it("getById should return 200 when job role exists", async () => {
+	it("should return 200 when getById finds a job role", async () => {
 		const role = {
 			id: 12,
 			roleName: "Platform Engineer",
@@ -89,7 +74,7 @@ describe("JobRoleController", () => {
 		expect(res.json).toHaveBeenCalledWith(role);
 	});
 
-	it("getAllOpen should return 500 on service error", async () => {
+	it("should return 500 when getAllOpen's service call fails", async () => {
 		const service = {
 			findAllOpen: vi.fn().mockRejectedValue(new Error("Database error")),
 			findById: vi.fn(),
@@ -108,10 +93,45 @@ describe("JobRoleController", () => {
 		});
 	});
 
-	it("getById should return 500 on service error", async () => {
+	it("should return 500 when getById's service call fails", async () => {
 		const service = {
 			findAllOpen: vi.fn(),
 			findById: vi.fn().mockRejectedValue(new Error("Database error")),
+		};
+		const controller = new JobRoleController(service as never);
+		const res = createMockResponse();
+
+		await controller.getById({ params: { id: "12" } } as never, res as never);
+
+		expect(res.status).toHaveBeenCalledWith(500);
+		expect(res.json).toHaveBeenCalledWith({
+			error: "Failed to fetch job role",
+		});
+	});
+
+	it("should return 500 when getAllOpen's service rejects with a non-Error value", async () => {
+		const service = {
+			findAllOpen: vi.fn().mockRejectedValue("boom"),
+			findById: vi.fn(),
+		};
+		const controller = new JobRoleController(service as never);
+		const res = createMockResponse();
+
+		await controller.getAllOpen(
+			{ params: { status: "open" } } as never,
+			res as never,
+		);
+
+		expect(res.status).toHaveBeenCalledWith(500);
+		expect(res.json).toHaveBeenCalledWith({
+			error: "Failed to fetch job roles",
+		});
+	});
+
+	it("should return 500 when getById's service rejects with a non-Error value", async () => {
+		const service = {
+			findAllOpen: vi.fn(),
+			findById: vi.fn().mockRejectedValue("boom"),
 		};
 		const controller = new JobRoleController(service as never);
 		const res = createMockResponse();

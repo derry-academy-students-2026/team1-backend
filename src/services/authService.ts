@@ -1,13 +1,31 @@
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import { getJwtExpiresIn, getJwtSecret } from "../config/authConfig.js";
-import type { JwtPayloadDto, LoginResponseDto } from "../dtos/authDto.js";
+import {
+	isValidEmail,
+	isValidRegistrationPassword,
+	type JwtPayloadDto,
+	type LoginResponseDto,
+	type RegisterResponseDto,
+} from "../dtos/authDto.js";
 import Logger from "../lib/logger.js";
 import prisma from "../prismaClient.js";
 
 // Verified against a throwaway hash when no user matches, so a missing email
 // costs the same time as a wrong password and cannot be enumerated.
 let decoyHash: string | null = null;
+
+export type RegistrationErrorCode =
+	| "INVALID_EMAIL"
+	| "WEAK_PASSWORD"
+	| "DUPLICATE_EMAIL";
+
+export class RegistrationError extends Error {
+	constructor(public readonly code: RegistrationErrorCode) {
+		super(code);
+		this.name = "RegistrationError";
+	}
+}
 
 /** Lazily creates the hash used to equalize missing-user login timing. */
 const getDecoyHash = async (): Promise<string> => {
@@ -61,6 +79,51 @@ export class AuthService {
 		} catch (error) {
 			Logger.error(
 				`❌ Authentication operation failed: ${error instanceof Error ? error.message : String(error)}`,
+			);
+			throw error;
+		}
+	}
+
+	/** Registers a new applicant and returns a token for the created account. */
+	public async register(
+		email: string,
+		password: string,
+	): Promise<RegisterResponseDto> {
+		Logger.debug("📝 Attempting to register user...");
+		const normalizedEmail = email.trim().toLowerCase();
+
+		if (!isValidEmail(normalizedEmail)) {
+			throw new RegistrationError("INVALID_EMAIL");
+		}
+
+		if (!isValidRegistrationPassword(password)) {
+			throw new RegistrationError("WEAK_PASSWORD");
+		}
+
+		try {
+			const existingUser = await prisma.user.findUnique({
+				where: { email: normalizedEmail },
+			});
+
+			if (existingUser) {
+				throw new RegistrationError("DUPLICATE_EMAIL");
+			}
+
+			const passwordHash = await argon2.hash(password);
+			const user = await prisma.user.create({
+				data: { email: normalizedEmail, passwordHash, role: "user" },
+			});
+
+			Logger.info(`✅ Registered user ID: ${user.userId}`);
+			return {
+				token: this.signToken({ userId: user.userId, email: user.email }),
+			};
+		} catch (error) {
+			if (error instanceof RegistrationError) {
+				throw error;
+			}
+			Logger.error(
+				`❌ Registration operation failed: ${error instanceof Error ? error.message : String(error)}`,
 			);
 			throw error;
 		}

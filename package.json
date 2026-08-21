@@ -39,7 +39,8 @@
 		"jsonwebtoken": "^9.0.3",
 		"morgan": "^1.11.0",
 		"pg": "^8.23.0",
-		"winston": "^3.19.0"
+		"winston": "^3.19.0",
+		"zod": "^4.4.3"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.7",
