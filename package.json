@@ -12,7 +12,8 @@
 		"test": "vitest run",
 		"test:ui": "vitest --ui",
 		"test:watch": "vitest",
-		"test:coverage": "vitest run --coverage"
+		"test:coverage": "vitest run --coverage",
+		"certs:export": "mkdir -p certs && touch certs/corporate-root-ca.crt && for cn in KAINOS-INSPECTION KAINOS-ROOT-CA 'Zscaler Root CA'; do security find-certificate -a -c \"$cn\" -p /Library/Keychains/System.keychain; done > certs/KAINOS-ZSCALER G2_2026.pem"
 	},
 	"vitest": {
 		"environment": "node",

@@ -104,6 +104,49 @@ npm run build
 
 This will generate compiled files in the `dist/` directory.
 
+## Docker
+
+The included multi-stage `Dockerfile` builds the TypeScript application, generates
+the Prisma client, and creates a separate production image with only runtime
+dependencies and compiled code.
+
+On macOS, export the corporate proxy certificate from the System keychain before
+building the image:
+
+```bash
+npm run certs:export
+```
+
+Then build the image from the repository root:
+
+```bash
+docker build -t team1-backend:local .
+```
+
+Run it with the API exposed on port 4000:
+
+```bash
+docker run --rm --name team1-backend --env-file .env -p 4000:4000 team1-backend:local
+```
+
+When PostgreSQL runs on the Mac host, set `DATABASE_URL` in `.env` to use
+`host.docker.internal` rather than `localhost`, for example:
+
+```bash
+DATABASE_URL="postgresql://postgres:password@host.docker.internal:4432/jobRole"
+```
+
+Verify the running API and view its logs:
+
+```bash
+curl http://localhost:4000/health
+docker logs -f team1-backend
+```
+
+The build trusts `certs/KAINOS-ZSCALER G2_2026.pem` so npm and Prisma can make
+HTTPS requests through the Kainos Zscaler proxy. Replace this certificate before
+its 30 August 2026 expiry if the corporate certificate is renewed.
+
 ## Testing
 
 ### Run Tests (Once)
