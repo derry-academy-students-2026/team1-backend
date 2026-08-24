@@ -24,7 +24,8 @@ Before you begin, ensure you have the following installed:
 - **Git**
 
 The project lockfile is generated and validated with npm 12.0.2. Verify your
-version before installing dependencies:
+version before installing dependencies. `npm install` and `npm ci` fail before
+dependency resolution when Node or npm does not meet these requirements:
 
 ```bash
 npm --version

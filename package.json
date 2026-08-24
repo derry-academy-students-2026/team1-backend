@@ -37,6 +37,18 @@
 	"keywords": [],
 	"type": "module",
 	"packageManager": "npm@12.0.2",
+	"devEngines": {
+		"runtime": {
+			"name": "node",
+			"version": ">=24.15.0",
+			"onFail": "error"
+		},
+		"packageManager": {
+			"name": "npm",
+			"version": "12.0.2",
+			"onFail": "error"
+		}
+	},
 	"bugs": {
 		"url": "https://github.com/derry-academy-students-2026/team1-backend/issues"
 	},
