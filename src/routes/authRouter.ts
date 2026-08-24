@@ -1,14 +1,22 @@
 import express from "express";
 import { AuthController } from "../controllers/authController.js";
+import { LoginSchema, RegisterSchema } from "../dtos/authDto.js";
+import { validateBody } from "../middleware/validate.js";
 import { AuthService } from "../services/authService.js";
 
 const router = express.Router();
 const controller = new AuthController(new AuthService());
 
-/** Delegates login requests to the authentication controller. */
-const loginHandler = (req: express.Request, res: express.Response) =>
-	controller.login(req, res);
-
-router.post("/login", loginHandler);
+// validateBody rejects malformed requests before the controller ever runs
+router.post(
+	"/login",
+	validateBody(LoginSchema),
+	controller.login.bind(controller),
+);
+router.post(
+	"/register",
+	validateBody(RegisterSchema),
+	controller.register.bind(controller),
+);
 
 export default router;

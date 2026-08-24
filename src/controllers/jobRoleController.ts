@@ -42,18 +42,11 @@ export class JobRoleController {
 	 */
 
 	async getById(req: Request, res: Response): Promise<void> {
+		// req.params.id is already validated as numeric by validateParams(IdParamSchema)
 		const id = Number(req.params.id);
 		Logger.debug(
 			`🌐 [GET /job-roles/:id] Received request for job role ID: ${id}`,
 		);
-
-		if (Number.isNaN(id)) {
-			Logger.warn(
-				`⚠️  [GET /job-roles/:id] Invalid ID parameter: "${req.params.id}" | Status: 400`,
-			);
-			res.status(400).json({ error: "ID must be a number" });
-			return;
-		}
 
 		try {
 			const jobRole = await this.service.findById(id);

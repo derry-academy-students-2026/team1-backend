@@ -6,6 +6,7 @@ vi.mock("../../src/prismaClient.js", () => ({
 	default: {
 		user: {
 			findUnique: vi.fn(),
+			create: vi.fn(),
 		},
 	},
 }));
@@ -18,6 +19,8 @@ vi.mock("argon2", () => ({
 }));
 
 const argon2 = (await import("argon2")).default;
+const realArgon2 = (await vi.importActual<typeof import("argon2")>("argon2"))
+	.default;
 const prisma = (await import("../../src/prismaClient.js")).default;
 
 const TEST_SECRET = "test-secret";
@@ -26,6 +29,7 @@ const seededUser = {
 	userId: 1,
 	email: "test1@example.com",
 	passwordHash: "$argon2id$stored",
+	role: "user",
 	createdAt: new Date("2026-08-14"),
 };
 
@@ -112,5 +116,61 @@ describe("AuthService", () => {
 		await expect(
 			service.login("test1@example.com", "Password123!"),
 		).rejects.toThrow("DB down");
+	});
+
+	it("should propagate non-Error rejections during login", async () => {
+		vi.mocked(prisma.user.findUnique).mockRejectedValue("db exploded" as never);
+
+		await expect(
+			service.login("test1@example.com", "Password123!"),
+		).rejects.toBe("db exploded");
+	});
+
+	it("should create a user with a hashed password and return a token", async () => {
+		vi.mocked(prisma.user.findUnique).mockResolvedValue(null as never);
+		vi.mocked(argon2.hash).mockImplementation((password) =>
+			realArgon2.hash(password),
+		);
+		vi.mocked(prisma.user.create).mockResolvedValue({
+			...seededUser,
+			email: "new@example.com",
+			passwordHash: "",
+		} as never);
+
+		const result = await service.register(" NEW@Example.com ", "Password123!");
+		const createCall = vi.mocked(prisma.user.create).mock.calls[0]?.[0];
+		const storedPasswordHash = createCall?.data.passwordHash as string;
+
+		expect(prisma.user.create).toHaveBeenCalledWith({
+			data: {
+				email: "new@example.com",
+				passwordHash: storedPasswordHash,
+				role: "user",
+			},
+		});
+		expect(argon2.hash).toHaveBeenCalledWith("Password123!");
+		expect(storedPasswordHash).not.toBe("Password123!");
+		expect(await realArgon2.verify(storedPasswordHash, "Password123!")).toBe(
+			true,
+		);
+		expect(result.token).toBeTruthy();
+	});
+
+	it("should reject duplicate email", async () => {
+		vi.mocked(prisma.user.findUnique).mockResolvedValue(seededUser as never);
+
+		await expect(
+			service.register("test1@example.com", "Password123!"),
+		).rejects.toMatchObject({ code: "DUPLICATE_EMAIL" });
+		expect(prisma.user.create).not.toHaveBeenCalled();
+	});
+
+	it("should propagate non-Error rejections during registration", async () => {
+		vi.mocked(prisma.user.findUnique).mockResolvedValue(null as never);
+		vi.mocked(prisma.user.create).mockRejectedValue("db exploded" as never);
+
+		await expect(
+			service.register("new@example.com", "Password123!"),
+		).rejects.toBe("db exploded");
 	});
 });

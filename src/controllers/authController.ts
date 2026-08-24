@@ -1,7 +1,10 @@
 import type { Request, Response } from "express";
-import type { LoginRequestDto } from "../dtos/authDto.js";
+import type { LoginRequestDto, RegisterRequestDto } from "../dtos/authDto.js";
 import Logger from "../lib/logger.js";
-import type { AuthService } from "../services/authService.js";
+import {
+	type AuthService,
+	RegistrationError,
+} from "../services/authService.js";
 
 const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password";
 
@@ -20,23 +23,8 @@ export class AuthController {
 	async login(req: Request, res: Response): Promise<void> {
 		Logger.debug("🌐 [POST /auth/login] Received login request");
 
-		const { email, password } = (req.body ?? {}) as Partial<LoginRequestDto>;
-
-		if (typeof email !== "string" || typeof password !== "string") {
-			Logger.warn(
-				"⚠️  [POST /auth/login] Request body missing email or password | Status: 400",
-			);
-			res.status(400).json({ message: "Email and password are required" });
-			return;
-		}
-
-		if (email.trim() === "" || password === "") {
-			Logger.warn(
-				"⚠️  [POST /auth/login] Empty email or password | Status: 400",
-			);
-			res.status(400).json({ message: "Email and password are required" });
-			return;
-		}
+		// Shape already validated by the validateBody(LoginSchema) middleware
+		const { email, password } = req.body as LoginRequestDto;
 
 		try {
 			const result = await this.service.login(email, password);
@@ -54,6 +42,34 @@ export class AuthController {
 				`❌ [POST /auth/login] Request failed: ${error instanceof Error ? error.message : String(error)}`,
 			);
 			res.status(500).json({ message: "Failed to process login" });
+		}
+	}
+
+	/** Handles applicant registration and maps service errors to the API contract. */
+	async register(req: Request, res: Response): Promise<void> {
+		Logger.debug("🌐 [POST /auth/register] Received registration request");
+		// Shape already validated by the validateBody(RegisterSchema) middleware
+		const { email, password } = req.body as RegisterRequestDto;
+
+		try {
+			const result = await this.service.register(email, password);
+			Logger.info("📤 [POST /auth/register] Issued token | Status: 201");
+			res.status(201).json(result);
+		} catch (error) {
+			if (error instanceof RegistrationError) {
+				const status = 409;
+				const message = "An account with this email already exists";
+				Logger.warn(
+					`⚠️  [POST /auth/register] ${error.code} | Status: ${status}`,
+				);
+				res.status(status).json({ message });
+				return;
+			}
+
+			Logger.error(
+				`❌ [POST /auth/register] Request failed: ${error instanceof Error ? error.message : String(error)}`,
+			);
+			res.status(500).json({ message: "Failed to process registration" });
 		}
 	}
 }
