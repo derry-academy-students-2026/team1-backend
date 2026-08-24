@@ -94,47 +94,40 @@ This will generate compiled files in the `dist/` directory.
 
 ## Docker
 
-The included multi-stage `Dockerfile` builds the TypeScript application, generates
-the Prisma client, and creates a separate production image with only runtime
-dependencies and compiled code. Local development does not require this image;
-use `npm run db:setup` followed by `npm run dev` instead.
-
-On macOS, export the corporate proxy certificate from the System keychain before
-building the image:
+On a Kainos-managed macOS device, first export the corporate proxy certificate
+from the System keychain:
 
 ```bash
 npm run certs:export
 ```
 
-Then build the image from the repository root:
+To run the complete application in Docker, including PostgreSQL, migrations, and
+seed data, run this command from the repository root:
 
 ```bash
-docker build -t team1-backend:local .
+npm run docker:up
 ```
 
-Run it with the API exposed on port 4000:
-
-```bash
-docker run --rm --name team1-backend --env-file .env -p 4000:4000 team1-backend:local
-```
-
-When PostgreSQL runs outside Docker on the Mac host, set `DATABASE_URL` in
-`.env` to use `host.docker.internal` rather than `localhost`, for example:
-
-```bash
-DATABASE_URL=postgresql://postgres:password@host.docker.internal:4432/jobRole
-```
+The API is available at `http://localhost:4000`. Compose connects the API to
+PostgreSQL over its internal `db` hostname, so no machine-specific database URL
+or Docker networking configuration is required.
 
 Verify the running API and view its logs:
 
 ```bash
 curl http://localhost:4000/health
-docker logs -f team1-backend
+docker compose logs -f api
 ```
 
-The build trusts `certs/KAINOS-ZSCALER G2_2026.pem` so npm and Prisma can make
-HTTPS requests through the Kainos Zscaler proxy. Replace this certificate before
-its 30 August 2026 expiry if the corporate certificate is renewed.
+Stop the application and remove its containers with:
+
+```bash
+npm run docker:down
+```
+
+The Docker build uses `certs/KAINOS-ZSCALER G2_2026.pem` to access npm and
+Prisma through the Kainos Zscaler proxy. Repeat the export if the corporate
+certificate is renewed.
 
 ## Testing
 
