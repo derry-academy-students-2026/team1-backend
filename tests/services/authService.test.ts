@@ -173,24 +173,4 @@ describe("AuthService", () => {
 			service.register("new@example.com", "Password123!"),
 		).rejects.toBe("db exploded");
 	});
-
-	it.each([
-		["missing domain", "user@example"],
-		["missing at sign", "user.example.com"],
-	])("should reject invalid email format: %s", async (_name, email) => {
-		await expect(service.register(email, "Password123!")).rejects.toMatchObject(
-			{ code: "INVALID_EMAIL" },
-		);
-	});
-
-	it.each([
-		["too short", "Pass1!"],
-		["missing uppercase", "password123!"],
-		["missing lowercase", "PASSWORD123!"],
-		["missing special character", "Password123"],
-	])("should reject weak password: %s", async (_name, password) => {
-		await expect(
-			service.register("new@example.com", password),
-		).rejects.toMatchObject({ code: "WEAK_PASSWORD" });
-	});
 });

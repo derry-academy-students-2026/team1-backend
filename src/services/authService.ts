@@ -1,12 +1,10 @@
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import { getJwtExpiresIn, getJwtSecret } from "../config/authConfig.js";
-import {
-	isValidEmail,
-	isValidRegistrationPassword,
-	type JwtPayloadDto,
-	type LoginResponseDto,
-	type RegisterResponseDto,
+import type {
+	JwtPayloadDto,
+	LoginResponseDto,
+	RegisterResponseDto,
 } from "../dtos/authDto.js";
 import Logger from "../lib/logger.js";
 import prisma from "../prismaClient.js";
@@ -15,10 +13,7 @@ import prisma from "../prismaClient.js";
 // costs the same time as a wrong password and cannot be enumerated.
 let decoyHash: string | null = null;
 
-export type RegistrationErrorCode =
-	| "INVALID_EMAIL"
-	| "WEAK_PASSWORD"
-	| "DUPLICATE_EMAIL";
+export type RegistrationErrorCode = "DUPLICATE_EMAIL";
 
 export class RegistrationError extends Error {
 	constructor(public readonly code: RegistrationErrorCode) {
@@ -91,14 +86,6 @@ export class AuthService {
 	): Promise<RegisterResponseDto> {
 		Logger.debug("📝 Attempting to register user...");
 		const normalizedEmail = email.trim().toLowerCase();
-
-		if (!isValidEmail(normalizedEmail)) {
-			throw new RegistrationError("INVALID_EMAIL");
-		}
-
-		if (!isValidRegistrationPassword(password)) {
-			throw new RegistrationError("WEAK_PASSWORD");
-		}
 
 		try {
 			const existingUser = await prisma.user.findUnique({

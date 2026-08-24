@@ -62,4 +62,36 @@ describe("authRouter", () => {
 		expect(response.body).toEqual({ token: "signed.jwt.value" });
 		expect(mockRegister).toHaveBeenCalledTimes(1);
 	});
+
+	it("POST /auth/register should reject an invalid email before reaching the controller", async () => {
+		const app = express();
+		app.use(express.json());
+		app.use("/auth", authRouter);
+
+		const response = await request(app)
+			.post("/auth/register")
+			.send({ email: "not-an-email", password: "Password123!" });
+
+		expect(response.status).toBe(400);
+		expect(response.body.errors).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ message: "Enter a valid email address" }),
+			]),
+		);
+		expect(mockRegister).not.toHaveBeenCalled();
+	});
+
+	it("POST /auth/login should reject a weak password before reaching the controller", async () => {
+		const app = express();
+		app.use(express.json());
+		app.use("/auth", authRouter);
+
+		const response = await request(app)
+			.post("/auth/login")
+			.send({ email: "test1@example.com", password: "short" });
+
+		expect(response.status).toBe(400);
+		expect(response.body.errors.length).toBeGreaterThan(0);
+		expect(mockLogin).not.toHaveBeenCalled();
+	});
 });

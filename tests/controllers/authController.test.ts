@@ -103,18 +103,6 @@ describe("AuthController", () => {
 
 	it.each([
 		[
-			"invalid email",
-			new RegistrationError("INVALID_EMAIL"),
-			400,
-			"Enter a valid email address",
-		],
-		[
-			"weak password",
-			new RegistrationError("WEAK_PASSWORD"),
-			400,
-			"Password must be more than 8 characters and include an uppercase letter, a lowercase letter, and a special character",
-		],
-		[
 			"duplicate email",
 			new RegistrationError("DUPLICATE_EMAIL"),
 			409,

@@ -57,15 +57,8 @@ export class AuthController {
 			res.status(201).json(result);
 		} catch (error) {
 			if (error instanceof RegistrationError) {
-				const responses = {
-					INVALID_EMAIL: [400, "Enter a valid email address"],
-					WEAK_PASSWORD: [
-						400,
-						"Password must be more than 8 characters and include an uppercase letter, a lowercase letter, and a special character",
-					],
-					DUPLICATE_EMAIL: [409, "An account with this email already exists"],
-				} as const;
-				const [status, message] = responses[error.code];
+				const status = 409;
+				const message = "An account with this email already exists";
 				Logger.warn(
 					`⚠️  [POST /auth/register] ${error.code} | Status: ${status}`,
 				);

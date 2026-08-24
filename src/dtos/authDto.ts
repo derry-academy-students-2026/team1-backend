@@ -1,9 +1,22 @@
 import { z } from "zod";
 
+const EmailSchema = z
+	.string()
+	.trim()
+	.min(4, "Email must be more than 3 characters")
+	.pipe(z.email("Enter a valid email address"));
+
+const PasswordSchema = z
+	.string()
+	.min(9, "Password must be more than 8 characters")
+	.regex(/[A-Z]/, "Password must include an uppercase letter")
+	.regex(/[a-z]/, "Password must include a lowercase letter")
+	.regex(/[^A-Za-z0-9]/, "Password must include a special character");
+
 /** Schema for the POST /auth/login request body. */
 export const LoginSchema = z.object({
-	email: z.string().trim().min(1, "Email is required"),
-	password: z.string().min(1, "Password is required"),
+	email: EmailSchema,
+	password: PasswordSchema,
 });
 
 /** Schema for the POST /auth/register request body. */
@@ -26,17 +39,6 @@ export interface LoginResponseDto {
 
 /** Shape of a successful POST /auth/register response. */
 export type RegisterResponseDto = LoginResponseDto;
-
-/** Returns whether an email has a valid, practical address format. */
-export const isValidEmail = (email: string): boolean =>
-	/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-/** Returns whether a password meets the registration policy. */
-export const isValidRegistrationPassword = (password: string): boolean =>
-	password.length > 8 &&
-	/[A-Z]/.test(password) &&
-	/[a-z]/.test(password) &&
-	/[^A-Za-z0-9]/.test(password);
 
 /**
  * Claims embedded in the signed JWT. Kept to the minimum needed to identify
