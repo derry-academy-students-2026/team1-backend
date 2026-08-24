@@ -26,6 +26,9 @@ RUN npx prisma generate
 COPY tsconfig.json ./
 COPY src ./src
 RUN npm run build
+
+# The Compose migration service uses the build target to run Prisma seeds.
+FROM build AS production-dependencies
 RUN npm prune --omit=dev
 
 # Keep the final image limited to production dependencies and compiled output.
@@ -43,8 +46,8 @@ RUN apt-get update \
 
 # Prisma's generated client is required by @prisma/client at runtime.
 COPY package.json ./
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=production-dependencies /app/node_modules ./node_modules
+COPY --from=production-dependencies /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=build /app/dist ./dist
 
 EXPOSE 4000
