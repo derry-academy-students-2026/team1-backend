@@ -20,7 +20,7 @@ Before you begin, ensure you have the following installed:
 
 - **Node.js** (v18 or higher)
 - **npm** (v9 or higher)
-- **PostgreSQL** (v12 or higher)
+- **Docker Desktop** (or Docker Engine with Compose v2)
 - **Git**
 
 ## Installation
@@ -38,35 +38,23 @@ cd team1-backend
 npm install
 ```
 
-3. Set up PostgreSQL with Docker:
-
-Start a PostgreSQL container:
+3. Create your local environment file:
 
 ```bash
-docker run --name jobRole-db -e POSTGRES_PASSWORD=password -e POSTGRES_DB=jobRole -p 4432:5432 -d postgres
+cp .env.example .env
 ```
 
-4. Set up your environment variables:
+The provided values are for local development only. Set a unique `JWT_SECRET`
+before deploying the application.
 
-Create a `.env` file in the root directory:
+4. Start PostgreSQL, apply all committed migrations, and seed the database:
 
 ```bash
-DATABASE_URL="postgresql://postgres:password@localhost:4432/jobRole"
-NODE_ENV="development"
-PORT=4000
+npm run db:setup
 ```
 
-5. Run database migrations:
-
-```bash
-npx prisma migrate dev --name init
-```
-
-6. Seed the database (optional):
-
-```bash
-npx prisma db seed
-```
+This starts a named Docker volume for PostgreSQL and waits for it to be ready,
+so no separate container name, hostname, or connection command is required.
 
 ## Running the Application
 
@@ -108,7 +96,8 @@ This will generate compiled files in the `dist/` directory.
 
 The included multi-stage `Dockerfile` builds the TypeScript application, generates
 the Prisma client, and creates a separate production image with only runtime
-dependencies and compiled code.
+dependencies and compiled code. Local development does not require this image;
+use `npm run db:setup` followed by `npm run dev` instead.
 
 On macOS, export the corporate proxy certificate from the System keychain before
 building the image:
@@ -129,11 +118,11 @@ Run it with the API exposed on port 4000:
 docker run --rm --name team1-backend --env-file .env -p 4000:4000 team1-backend:local
 ```
 
-When PostgreSQL runs on the Mac host, set `DATABASE_URL` in `.env` to use
-`host.docker.internal` rather than `localhost`, for example:
+When PostgreSQL runs outside Docker on the Mac host, set `DATABASE_URL` in
+`.env` to use `host.docker.internal` rather than `localhost`, for example:
 
 ```bash
-DATABASE_URL="postgresql://postgres:password@host.docker.internal:4432/jobRole"
+DATABASE_URL=postgresql://postgres:password@host.docker.internal:4432/jobRole
 ```
 
 Verify the running API and view its logs:
