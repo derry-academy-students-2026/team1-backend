@@ -18,10 +18,23 @@ A RESTful API backend built with Express, TypeScript, and PostgreSQL using Prism
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (v18 or higher)
-- **npm** (v9 or higher)
+- **Node.js** (v24.15.0 or higher)
+- **npm** (v12.0.2)
 - **Docker Desktop** (or Docker Engine with Compose v2)
 - **Git**
+
+The project lockfile is generated and validated with npm 12.0.2. Verify your
+version before installing dependencies:
+
+```bash
+npm --version
+```
+
+If it does not report `12.0.2`, install the required version:
+
+```bash
+npm install --global npm@12.0.2
+```
 
 ## Installation
 
@@ -32,7 +45,7 @@ git clone https://github.com/derry-academy-students-2026/team1-backend.git
 cd team1-backend
 ```
 
-2. Install dependencies:
+2. Install dependencies with npm 12.0.2:
 
 ```bash
 npm install

@@ -36,6 +36,7 @@
 	},
 	"keywords": [],
 	"type": "module",
+	"packageManager": "npm@12.0.2",
 	"bugs": {
 		"url": "https://github.com/derry-academy-students-2026/team1-backend/issues"
 	},

@@ -1,5 +1,5 @@
 # Build the TypeScript application and generate the Prisma client.
-FROM node:20-bookworm-slim AS build
+FROM node:24-bookworm-slim AS build
 
 WORKDIR /app
 
@@ -12,6 +12,9 @@ RUN apt-get update \
 COPY ["certs/KAINOS-ZSCALER G2_2026.pem", "/usr/local/share/ca-certificates/kainos-zscaler.crt"]
 RUN update-ca-certificates
 ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/kainos-zscaler.crt
+
+# Keep Docker's lockfile resolver aligned with the project package-manager version.
+RUN npm install --global npm@12.0.2
 
 # Copy manifests and the schema first so dependency and Prisma layers can be cached.
 COPY package.json package-lock.json ./
@@ -26,7 +29,7 @@ RUN npm run build
 RUN npm prune --omit=dev
 
 # Keep the final image limited to production dependencies and compiled output.
-FROM node:20-bookworm-slim AS production
+FROM node:24-bookworm-slim AS production
 
 WORKDIR /app
 
