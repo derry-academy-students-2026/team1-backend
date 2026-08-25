@@ -18,10 +18,24 @@ A RESTful API backend built with Express, TypeScript, and PostgreSQL using Prism
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (v18 or higher)
-- **npm** (v9 or higher)
-- **PostgreSQL** (v12 or higher)
+- **Node.js** (v24.15.0 or higher)
+- **npm** (v12.0.2)
+- **Docker Desktop** (or Docker Engine with Compose v2)
 - **Git**
+
+The project lockfile is generated and validated with npm 12.0.2. Verify your
+version before installing dependencies. `npm install` and `npm ci` fail before
+dependency resolution when Node or npm does not meet these requirements:
+
+```bash
+npm --version
+```
+
+If it does not report `12.0.2`, install the required version:
+
+```bash
+npm install --global npm@12.0.2
+```
 
 ## Installation
 
@@ -32,41 +46,29 @@ git clone https://github.com/derry-academy-students-2026/team1-backend.git
 cd team1-backend
 ```
 
-2. Install dependencies:
+2. Install dependencies with npm 12.0.2:
 
 ```bash
 npm install
 ```
 
-3. Set up PostgreSQL with Docker:
-
-Start a PostgreSQL container:
+3. Create your local environment file:
 
 ```bash
-docker run --name jobRole-db -e POSTGRES_PASSWORD=password -e POSTGRES_DB=jobRole -p 4432:5432 -d postgres
+cp .env.example .env
 ```
 
-4. Set up your environment variables:
+The provided values are for local development only. Set a unique `JWT_SECRET`
+before deploying the application.
 
-Create a `.env` file in the root directory:
+4. Start PostgreSQL, apply all committed migrations, and seed the database:
 
 ```bash
-DATABASE_URL="postgresql://postgres:password@localhost:4432/jobRole"
-NODE_ENV="development"
-PORT=4000
+npm run db:setup
 ```
 
-5. Run database migrations:
-
-```bash
-npx prisma migrate dev --name init
-```
-
-6. Seed the database (optional):
-
-```bash
-npx prisma db seed
-```
+This starts a named Docker volume for PostgreSQL and waits for it to be ready,
+so no separate container name, hostname, or connection command is required.
 
 ## Running the Application
 
@@ -103,6 +105,43 @@ npm run build
 ```
 
 This will generate compiled files in the `dist/` directory.
+
+## Docker
+
+On a Kainos-managed macOS device, first export the corporate proxy certificate
+from the System keychain:
+
+```bash
+npm run certs:export
+```
+
+To run the complete application in Docker, including PostgreSQL, migrations, and
+seed data, run this command from the repository root:
+
+```bash
+npm run docker:up
+```
+
+The API is available at `http://localhost:4000`. Compose connects the API to
+PostgreSQL over its internal `db` hostname, so no machine-specific database URL
+or Docker networking configuration is required.
+
+Verify the running API and view its logs:
+
+```bash
+curl http://localhost:4000/health
+docker compose logs -f api
+```
+
+Stop the application and remove its containers with:
+
+```bash
+npm run docker:down
+```
+
+The Docker build uses `certs/KAINOS-ZSCALER G2_2026.pem` to access npm and
+Prisma through the Kainos Zscaler proxy. Repeat the export if the corporate
+certificate is renewed.
 
 ## Testing
 

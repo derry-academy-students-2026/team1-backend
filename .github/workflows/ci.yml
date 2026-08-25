@@ -13,7 +13,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test
+          node-version: "24"
+      - run: corepack npm ci
+      - run: corepack npm run lint
+      - run: corepack npm run db:generate
+      - run: corepack npm test

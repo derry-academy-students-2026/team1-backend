@@ -12,7 +12,16 @@
 		"test": "vitest run",
 		"test:ui": "vitest --ui",
 		"test:watch": "vitest",
-		"test:coverage": "vitest run --coverage"
+		"test:coverage": "vitest run --coverage",
+		"db:up": "docker compose up --detach --wait db",
+		"db:generate": "prisma generate",
+		"db:migrate": "prisma migrate deploy",
+		"db:seed": "prisma db seed",
+		"db:setup": "npm run db:generate && npm run db:up && npm run db:migrate && npm run db:seed",
+		"db:down": "docker compose down",
+		"docker:up": "docker compose up --build --detach --wait",
+		"docker:down": "docker compose down",
+		"certs:export": "mkdir -p certs && touch certs/corporate-root-ca.crt && for cn in KAINOS-INSPECTION KAINOS-ROOT-CA 'Zscaler Root CA'; do security find-certificate -a -c \"$cn\" -p /Library/Keychains/System.keychain; done > \"certs/KAINOS-ZSCALER G2_2026.pem\""
 	},
 	"vitest": {
 		"environment": "node",
@@ -27,6 +36,19 @@
 	},
 	"keywords": [],
 	"type": "module",
+	"packageManager": "npm@12.0.2",
+	"devEngines": {
+		"runtime": {
+			"name": "node",
+			"version": ">=24.15.0",
+			"onFail": "error"
+		},
+		"packageManager": {
+			"name": "npm",
+			"version": "12.0.2",
+			"onFail": "error"
+		}
+	},
 	"bugs": {
 		"url": "https://github.com/derry-academy-students-2026/team1-backend/issues"
 	},
@@ -35,6 +57,7 @@
 		"@prisma/adapter-pg": "^7.9.1",
 		"@prisma/client": "^6.19.3",
 		"argon2": "^0.45.1",
+		"dotenv": "^16.6.1",
 		"express": "^5.2.1",
 		"jsonwebtoken": "^9.0.3",
 		"morgan": "^1.11.0",
