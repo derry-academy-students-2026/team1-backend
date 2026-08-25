@@ -15,6 +15,6 @@ jobs:
         with:
           node-version: "24"
       - run: corepack npm ci
-          - run: corepack npm run lint
-          - run: corepack npm run db:generate
-          - run: corepack npm test
+      - run: corepack npm run lint
+      - run: corepack npm run db:generate
+      - run: corepack npm test
