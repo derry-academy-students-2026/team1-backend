@@ -129,6 +129,31 @@ The workflow also runs Terraform plans for pull requests, so add a second federa
 
 This subject must match exactly. It authorizes the `terraform-plan` job for pull-request events only; the existing `main` branch credential continues to authorize image pushes and Terraform applies.
 
+If Azure reports `AADSTS700213` for this subject, create the missing credential against the Entra application. Replace `<application-client-id>` with `AZURE_CLIENT_ID` and run:
+
+```sh
+APPLICATION_OBJECT_ID=$(az ad app show --id "<application-client-id>" --query id --output tsv)
+cat > /tmp/team1-backend-pr-federated-credential.json <<'EOF'
+{
+  "name": "team1-backend-pull-request",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:derry-academy-students-2026@309693333/team1-backend@1322004912:pull_request",
+  "audiences": ["api://AzureADTokenExchange"]
+}
+EOF
+az ad app federated-credential create \
+  --id "$APPLICATION_OBJECT_ID" \
+  --parameters @/tmp/team1-backend-pr-federated-credential.json
+```
+
+Confirm Azure has the exact credential before rerunning the pull-request workflow:
+
+```sh
+az ad app federated-credential list --id "$APPLICATION_OBJECT_ID" --output table
+```
+
+Do not replace the `pull_request` subject with the `main` branch subject: GitHub issues different OIDC subjects for those events.
+
 Grant the service principal:
 
 - `Contributor` over the subscription, or restrict it to the state and application resource groups.
