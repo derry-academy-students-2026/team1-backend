@@ -256,6 +256,10 @@ tests/
 - **Logging**: Winston & Morgan
 - **Package Manager**: npm
 
+## Infrastructure and Deployment
+
+The Docker image, Terraform configuration, remote-state bootstrap instructions, and GitHub Actions setup are documented in [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
+
 ## API Documentation
 
 Health Check:
