@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-FROM node:20-bookworm-slim AS build
+FROM node:24-bookworm-slim AS build
 
 WORKDIR /app
 
@@ -7,18 +7,26 @@ RUN apt-get update \
 	&& apt-get install --yes --no-install-recommends ca-certificates python3 make g++ \
 	&& rm -rf /var/lib/apt/lists/*
 
-COPY ["certs/KAINOS-ZSCALER G2_2026.pem", "/usr/local/share/ca-certificates/kainos-zscaler.crt"]
-RUN update-ca-certificates
-ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/kainos-zscaler.crt
+RUN --mount=type=secret,id=corporate_ca,target=/tmp/corporate-ca.crt,required=false \
+	if [ -s /tmp/corporate-ca.crt ]; then \
+		NODE_EXTRA_CA_CERTS=/tmp/corporate-ca.crt npm install --global npm@12.0.2; \
+	else \
+		npm install --global npm@12.0.2; \
+	fi
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN --mount=type=secret,id=corporate_ca,target=/tmp/corporate-ca.crt,required=false \
+	if [ -s /tmp/corporate-ca.crt ]; then \
+		NODE_EXTRA_CA_CERTS=/tmp/corporate-ca.crt npm ci; \
+	else \
+		npm ci; \
+	fi
 
 COPY prisma ./prisma
 COPY prisma.config.ts ./
-RUN --mount=type=secret,id=prisma_ca,target=/tmp/prisma-ca.crt,required=false \
-	if [ -s /tmp/prisma-ca.crt ]; then \
-		NODE_EXTRA_CA_CERTS=/tmp/prisma-ca.crt npx prisma generate; \
+RUN --mount=type=secret,id=corporate_ca,target=/tmp/corporate-ca.crt,required=false \
+	if [ -s /tmp/corporate-ca.crt ]; then \
+		NODE_EXTRA_CA_CERTS=/tmp/corporate-ca.crt npx prisma generate; \
 	else \
 		npx prisma generate; \
 	fi
@@ -28,7 +36,7 @@ COPY src ./src
 RUN npm run build
 RUN npm prune --omit=dev
 
-FROM node:20-bookworm-slim AS runtime
+FROM node:24-bookworm-slim AS runtime
 
 WORKDIR /app
 

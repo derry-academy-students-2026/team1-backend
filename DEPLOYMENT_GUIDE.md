@@ -42,12 +42,18 @@ On a Kainos-managed macOS device, first export the corporate proxy certificate f
 npm run certs:export
 ```
 
-This writes `certs/KAINOS-ZSCALER G2_2026.pem`, which Docker trusts for npm and Prisma HTTPS access through the Kainos Zscaler proxy. The certificate is ignored by Git; re-export it when the corporate certificate is renewed.
+This writes `certs/KAINOS-ZSCALER G2_2026.pem`. Pass it to Docker as a BuildKit secret when building through the Kainos Zscaler proxy:
+
+```sh
+docker build --secret id=corporate_ca,src="certs/KAINOS-ZSCALER G2_2026.pem" --tag team1-backend:local .
+```
+
+The certificate is ignored by Git and is not copied into the image. GitHub-hosted runners do not use the Kainos proxy, so the CI build intentionally runs without this secret. Re-export it when the corporate certificate is renewed.
 
 If `prisma generate` still reports `unable to get local issuer certificate`, export the relevant organization root CA from Keychain Access as a PEM file and provide it only for the build:
 
 ```sh
-docker build --secret id=prisma_ca,src=/absolute/path/to/organization-root-ca.pem --tag team1-backend:local .
+docker build --secret id=corporate_ca,src=/absolute/path/to/organization-root-ca.pem --tag team1-backend:local .
 ```
 
 The certificate is a BuildKit secret: it is not copied into the image or committed to the repository. Do not disable TLS verification to work around this error.
@@ -112,6 +118,16 @@ The ACR is deliberately created manually for this exercise; the current Terrafor
 ## 7. Configure GitHub Actions with OpenID Connect
 
 In Azure, create an Entra application/service principal, then add a federated credential for the GitHub repository and `main` branch. The GitHub Actions `azure/login` documentation has the exact portal and CLI flow. Do not use an ACR password or a long-lived Azure client secret.
+
+The workflow also runs Terraform plans for pull requests, so add a second federated credential to the same Entra application with these values:
+
+| Field | Value |
+| --- | --- |
+| Issuer | `https://token.actions.githubusercontent.com` |
+| Audience | `api://AzureADTokenExchange` |
+| Subject | `repo:derry-academy-students-2026@309693333/team1-backend@1322004912:pull_request` |
+
+This subject must match exactly. It authorizes the `terraform-plan` job for pull-request events only; the existing `main` branch credential continues to authorize image pushes and Terraform applies.
 
 Grant the service principal:
 

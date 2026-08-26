@@ -115,6 +115,16 @@ from the System keychain:
 npm run certs:export
 ```
 
+When building through the Kainos Zscaler proxy, pass the exported certificate as
+a BuildKit secret:
+
+```bash
+docker build --secret id=corporate_ca,src="certs/KAINOS-ZSCALER G2_2026.pem" --tag team1-backend:local .
+```
+
+The certificate remains local and is not copied into the image. GitHub-hosted
+runners do not need this secret.
+
 To run the complete application in Docker, including PostgreSQL, migrations, and
 seed data, run this command from the repository root:
 
@@ -139,9 +149,7 @@ Stop the application and remove its containers with:
 npm run docker:down
 ```
 
-The Docker build uses `certs/KAINOS-ZSCALER G2_2026.pem` to access npm and
-Prisma through the Kainos Zscaler proxy. Repeat the export if the corporate
-certificate is renewed.
+Repeat the export if the corporate certificate is renewed.
 
 ## Testing
 
