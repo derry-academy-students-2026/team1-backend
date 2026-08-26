@@ -5,6 +5,9 @@ node_modules/
 dist/
 coverage/
 
+# CA Certs
+certs/
+
 # Environment variables
 .env
 .env.local
