@@ -13,6 +13,9 @@ certs/
 .env.local
 .env.*.local
 
+# Local TLS certificates used during Docker builds
+certs/
+
 # Logs
 logs/
 *.log

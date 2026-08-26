@@ -1,8 +1,13 @@
-import type { Prisma } from "@prisma/client";
 import prismaPkg from "@prisma/client";
 import Logger from "./lib/logger.js";
 
 const { PrismaClient } = prismaPkg;
+
+type QueryLogEvent = {
+	query: string;
+	params: string;
+	duration: number;
+};
 
 const prisma = new PrismaClient({
 	log:
@@ -14,9 +19,9 @@ const prisma = new PrismaClient({
 // Log Prisma queries in development mode
 if (process.env.NODE_ENV === "development") {
 	/** Writes Prisma query details to the debug log in development. */
-	prisma.$on("query", (e: Prisma.QueryEvent) => {
+	prisma.$on("query", (event: QueryLogEvent) => {
 		Logger.debug(
-			`[DB QUERY] ${e.query} | Params: ${JSON.stringify(e.params)} | Duration: ${e.duration}ms`,
+			`[DB QUERY] ${event.query} | Params: ${JSON.stringify(event.params)} | Duration: ${event.duration}ms`,
 		);
 	});
 }

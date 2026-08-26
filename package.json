@@ -13,14 +13,6 @@
 		"test:ui": "vitest --ui",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
-		"db:up": "docker compose up --detach --wait db",
-		"db:generate": "prisma generate",
-		"db:migrate": "prisma migrate deploy",
-		"db:seed": "prisma db seed",
-		"db:setup": "npm run db:generate && npm run db:up && npm run db:migrate && npm run db:seed",
-		"db:down": "docker compose down",
-		"docker:up": "docker compose up --build --detach --wait",
-		"docker:down": "docker compose down",
 		"certs:export": "mkdir -p certs && touch certs/corporate-root-ca.crt && for cn in KAINOS-INSPECTION KAINOS-ROOT-CA 'Zscaler Root CA'; do security find-certificate -a -c \"$cn\" -p /Library/Keychains/System.keychain; done > \"certs/KAINOS-ZSCALER G2_2026.pem\""
 	},
 	"vitest": {

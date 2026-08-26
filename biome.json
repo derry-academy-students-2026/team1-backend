@@ -5,7 +5,14 @@
 		"indentStyle": "tab"
 	},
 	"files": {
-		"includes": ["**", "!dist", "!logs", "!coverage", "!code_reviews"]
+		"includes": [
+			"**",
+			"!dist",
+			"!logs",
+			"!coverage",
+			"!code_reviews",
+			"!infrastructure/**/.terraform"
+		]
 	},
 	"linter": {
 		"enabled": true,
