@@ -150,3 +150,25 @@ jobs:
           -backend-config="use_azuread_auth=true"
       - name: Apply reviewed Terraform plan
         run: terraform -chdir=infrastructure apply -input=false -auto-approve
+      - name: Configure database connection secret
+        env:
+          POSTGRES_ADMIN_PASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
+        run: |
+          POSTGRES_FQDN=$(terraform -chdir=infrastructure output -raw postgresql_fqdn)
+          POSTGRES_ADMIN_LOGIN=$(terraform -chdir=infrastructure output -raw postgresql_administrator_login)
+          POSTGRES_DATABASE=$(terraform -chdir=infrastructure output -raw postgresql_database_name)
+          KEY_VAULT_NAME=$(terraform -chdir=infrastructure output -raw key_vault_name)
+          POSTGRES_PASSWORD_ENCODED=$(node -p 'encodeURIComponent(process.env.POSTGRES_ADMIN_PASSWORD)')
+          DATABASE_URL="postgresql://${POSTGRES_ADMIN_LOGIN}:${POSTGRES_PASSWORD_ENCODED}@${POSTGRES_FQDN}:5432/${POSTGRES_DATABASE}?sslmode=require"
+          az keyvault secret set --vault-name "$KEY_VAULT_NAME" --name DatabaseUrlString --value "$DATABASE_URL" --output none
+      - name: Apply pending database migrations
+        run: |
+          RESOURCE_GROUP=$(terraform -chdir=infrastructure output -raw resource_group_name)
+          JOB_NAME=$(terraform -chdir=infrastructure output -raw database_migration_job_name)
+          az containerapp job start --name "$JOB_NAME" --resource-group "$RESOURCE_GROUP"
+      - name: Restart backend with the updated database connection
+        run: |
+          RESOURCE_GROUP=$(terraform -chdir=infrastructure output -raw resource_group_name)
+          APP_NAME=$(terraform -chdir=infrastructure output -raw backend_container_app_name)
+          REVISION_NAME=$(az containerapp revision list --name "$APP_NAME" --resource-group "$RESOURCE_GROUP" --query "[?properties.active] | [0].name" --output tsv)
+          az containerapp revision restart --name "$APP_NAME" --resource-group "$RESOURCE_GROUP" --revision "$REVISION_NAME"

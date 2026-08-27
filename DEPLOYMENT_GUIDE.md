@@ -197,19 +197,22 @@ Before opening a pull request, add this GitHub Actions secret:
 | --- | --- |
 | Secret: `POSTGRES_ADMIN_PASSWORD` | A new strong PostgreSQL administrator password. |
 
+The GitHub Actions service principal, `team1-backend-github-actions`, must be
+assigned the `Key Vault Secrets Officer` role manually on `team1-backend-dev-kv`.
+Terraform does not manage that role assignment because the deployment identity
+does not have permission to create Azure RBAC assignments.
+
 The workflow passes this secret to Terraform only as
 `TF_VAR_postgresql_administrator_password`. Terraform marks it sensitive, but
 the password is retained in Terraform state by the AzureRM provider; keep remote
 state access restricted to deployment identities.
 
 On merge to `main`, the workflow pushes both the API image and its migration
-image and provisions the PostgreSQL server, `jobrole` database, and migration
-job. It does not write Key Vault secrets or run migrations automatically.
-
-After Terraform has created the server, an authorised Key Vault user must update
-the existing `DatabaseUrlString` secret, start the migration job, wait for it to
-complete, and restart the backend revision. This manual step avoids requiring
-the GitHub Actions identity to create or manage Azure RBAC role assignments.
+image, provisions the PostgreSQL server and `jobrole` database, writes the TLS
+connection string to the existing `DatabaseUrlString` Key Vault secret, and
+starts the migration job. Once the migration job has started, it restarts the
+active backend revision so it immediately reads the new `DATABASE_URL` from
+that Key Vault secret.
 
 The database uses a small burstable development SKU, seven-day backups, no high
 availability, and the Azure-services firewall exception. The firewall rule is
