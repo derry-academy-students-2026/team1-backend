@@ -9,6 +9,9 @@ export const app = express();
 
 Logger.info("App initialization started");
 
+const jobRolesFeatureEnabled =
+	process.env.FEATURE_JOB_ROLES_ENABLED?.toLowerCase() !== "false";
+
 // Middleware
 app.use(express.json());
 app.use(morganMiddleware);
@@ -17,8 +20,12 @@ Logger.info("Morgan HTTP middleware registered");
 app.use(healthRouter);
 app.use("/auth", authRouter);
 Logger.info("Auth routes mounted at /auth");
-app.use("/job-roles", jobRolesRouter);
-Logger.info("Job routes mounted at /job-roles");
+if (jobRolesFeatureEnabled) {
+	app.use("/job-roles", jobRolesRouter);
+	Logger.info("Job routes mounted at /job-roles");
+} else {
+	Logger.info("Job roles feature is disabled");
+}
 
 // Error handling middleware
 app.use(
