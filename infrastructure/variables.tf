@@ -43,3 +43,37 @@ variable "feature_job_roles_enabled" {
   description = "Whether the job roles feature is enabled in the backend deployment."
   default     = true
 }
+
+variable "postgresql_server_name" {
+  type        = string
+  description = "Globally unique Azure Database for PostgreSQL Flexible Server name."
+  default     = "team1backenddevpg2026"
+
+  validation {
+    condition     = can(regex("^[a-z0-9-]{3,63}$", var.postgresql_server_name))
+    error_message = "PostgreSQL server names must contain 3-63 lowercase letters, numbers, or hyphens."
+  }
+}
+
+variable "postgresql_database_name" {
+  type        = string
+  description = "Name of the PostgreSQL database used by the backend."
+  default     = "jobrole"
+}
+
+variable "postgresql_administrator_login" {
+  type        = string
+  description = "Administrator login used to provision the demonstration PostgreSQL server."
+  default     = "team1admin"
+}
+
+variable "postgresql_administrator_password" {
+  type        = string
+  description = "Administrator password supplied through TF_VAR_postgresql_administrator_password."
+  sensitive   = true
+
+  validation {
+    condition     = length(var.postgresql_administrator_password) >= 8
+    error_message = "The PostgreSQL administrator password must be at least 8 characters long."
+  }
+}

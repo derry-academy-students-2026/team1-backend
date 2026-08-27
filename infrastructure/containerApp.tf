@@ -81,3 +81,56 @@ resource "azurerm_container_app" "backend" {
     azurerm_role_assignment.backend_key_vault_secrets,
   ]
 }
+
+resource "azurerm_container_app_job" "database_migration" {
+  name                         = "${var.project_name}-${var.environment}-db-migrate"
+  container_app_environment_id = azurerm_container_app_environment.backend.id
+  location                     = var.location
+  resource_group_name          = module.application_resource_group.name
+  replica_timeout_in_seconds   = 600
+  replica_retry_limit          = 0
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.backend.id]
+  }
+
+  registry {
+    server   = data.azurerm_container_registry.backend.login_server
+    identity = azurerm_user_assigned_identity.backend.id
+  }
+
+  manual_trigger_config {
+    parallelism              = 1
+    replica_completion_count = 1
+  }
+
+  template {
+    container {
+      name    = "database-migration"
+      image   = "${data.azurerm_container_registry.backend.login_server}/team1-backend-migration:${var.backend_image_tag}"
+      cpu     = 0.25
+      memory  = "0.5Gi"
+      command = ["npm", "run", "db:migrate"]
+
+      env {
+        name        = "DATABASE_URL"
+        secret_name = "database-url-ref"
+      }
+    }
+  }
+
+  secret {
+    name                = "database-url-ref"
+    key_vault_secret_id = "${azurerm_key_vault.backend.vault_uri}secrets/DatabaseUrlString"
+    identity            = azurerm_user_assigned_identity.backend.id
+  }
+
+  tags = local.common_tags
+
+  depends_on = [
+    azurerm_postgresql_flexible_server_firewall_rule.allow_azure_services,
+    azurerm_role_assignment.backend_acr_pull,
+    azurerm_role_assignment.backend_key_vault_secrets,
+  ]
+}
