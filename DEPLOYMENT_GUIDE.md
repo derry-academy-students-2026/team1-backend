@@ -224,7 +224,7 @@ After the first deployment, inspect the job in Azure Portal or run:
 
 ```sh
 az containerapp job execution list \
-  --name team1-backend-dev-database-migration \
+  --name team1-backend-dev-db-migrate \
   --resource-group team1-backend-dev-rg \
   --output table
 ```

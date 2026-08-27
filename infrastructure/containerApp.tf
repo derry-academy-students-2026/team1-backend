@@ -83,7 +83,7 @@ resource "azurerm_container_app" "backend" {
 }
 
 resource "azurerm_container_app_job" "database_migration" {
-  name                         = "${var.project_name}-${var.environment}-database-migration"
+  name                         = "${var.project_name}-${var.environment}-db-migrate"
   container_app_environment_id = azurerm_container_app_environment.backend.id
   location                     = var.location
   resource_group_name          = module.application_resource_group.name
