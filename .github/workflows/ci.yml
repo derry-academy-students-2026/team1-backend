@@ -61,6 +61,15 @@ jobs:
           tags: |
             ${{ vars.ACR_LOGIN_SERVER }}/team1-backend:${{ github.sha }}
             ${{ vars.ACR_LOGIN_SERVER }}/team1-backend:latest
+      - name: Build and push migration image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: migration
+          push: true
+          tags: |
+            ${{ vars.ACR_LOGIN_SERVER }}/team1-backend-migration:${{ github.sha }}
+            ${{ vars.ACR_LOGIN_SERVER }}/team1-backend-migration:latest
 
   terraform-plan:
     name: Terraform plan
@@ -76,6 +85,7 @@ jobs:
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_USE_OIDC: true
       TF_VAR_backend_image_tag: ${{ github.sha }}
+      TF_VAR_postgresql_administrator_password: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - name: Log in to Azure with OpenID Connect
@@ -119,6 +129,7 @@ jobs:
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_USE_OIDC: true
       TF_VAR_backend_image_tag: ${{ github.sha }}
+      TF_VAR_postgresql_administrator_password: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - name: Log in to Azure with OpenID Connect

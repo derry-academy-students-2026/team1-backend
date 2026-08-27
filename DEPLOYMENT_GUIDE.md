@@ -167,6 +167,7 @@ In GitHub repository **Settings > Secrets and variables > Actions**, add these s
 | `AZURE_CLIENT_ID` | Entra application/client ID |
 | `AZURE_TENANT_ID` | Entra tenant ID |
 | `AZURE_SUBSCRIPTION_ID` | Azure subscription ID |
+| `POSTGRES_ADMIN_PASSWORD` | Strong PostgreSQL administrator password |
 
 Add these repository variables:
 
@@ -183,3 +184,44 @@ Add these repository variables:
 Open a pull request. It runs linting, tests, a Docker build, and Terraform plan but does not push an image or change Azure resources. Merging to `main` then pushes `team1-backend:<commit-sha>` and `team1-backend:latest` to ACR, followed by Terraform apply.
 
 Protect `main` in GitHub and require the `test`, `build-container`, and `terraform-plan` checks before merge. For production later, create a second state key and GitHub Environment with required reviewers, then pass `environment=prod` only from that protected deployment job.
+
+## 9. Deploy the demonstration PostgreSQL database
+
+The backend Terraform provisions an Azure Database for PostgreSQL Flexible Server
+and a manual Container Apps Job that applies committed Prisma migrations. It does
+not change the shared Container Apps Environment or the frontend application.
+
+Before opening a pull request, add this GitHub Actions secret:
+
+| Setting | Value |
+| --- | --- |
+| Secret: `POSTGRES_ADMIN_PASSWORD` | A new strong PostgreSQL administrator password. |
+
+The workflow passes this secret to Terraform only as
+`TF_VAR_postgresql_administrator_password`. Terraform marks it sensitive, but
+the password is retained in Terraform state by the AzureRM provider; keep remote
+state access restricted to deployment identities.
+
+On merge to `main`, the workflow pushes both the API image and its migration
+image and provisions the PostgreSQL server, `jobrole` database, and migration
+job. It does not write Key Vault secrets or run migrations automatically.
+
+After Terraform has created the server, an authorised Key Vault user must update
+the existing `DatabaseUrlString` secret, start the migration job, wait for it to
+complete, and restart the backend revision. This manual step avoids requiring
+the GitHub Actions identity to create or manage Azure RBAC role assignments.
+
+The database uses a small burstable development SKU, seven-day backups, no high
+availability, and the Azure-services firewall exception. The firewall rule is
+needed because the existing shared Container Apps Environment has no stable
+outbound IP address. It is suitable only for this demonstration environment;
+production should use private networking in a separately planned environment.
+
+After the first deployment, inspect the job in Azure Portal or run:
+
+```sh
+az containerapp job execution list \
+  --name team1-backend-dev-database-migration \
+  --resource-group team1-backend-dev-rg \
+  --output table
+```
