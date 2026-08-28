@@ -22,7 +22,7 @@ model JobRole {
   bandId       Int
   description  String
   responsibilities String
-  sharepointUrl String
+  sharepointUrl String @unique
   numberOfOpenPositions Int
 
   capability   Capability @relation(fields: [capabilityId], references: [capabilityId])
@@ -34,7 +34,7 @@ model JobRole {
 
 model Capability {
   capabilityId   Int       @id @default(autoincrement())
-  capabilityName String
+  capabilityName String    @unique
 
   jobRoles       JobRole[]
 
@@ -43,7 +43,7 @@ model Capability {
 
 model Band {
   bandId   Int       @id @default(autoincrement())
-  bandName String
+  bandName String    @unique
 
   jobRoles JobRole[]
 
@@ -52,7 +52,7 @@ model Band {
 
 model Status {
   statusId   Int       @id @default(autoincrement())
-  statusName String
+  statusName String    @unique
 
   jobRoles   JobRole[]
 
