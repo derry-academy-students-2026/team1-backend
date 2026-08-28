@@ -4,6 +4,7 @@ resource "azurerm_postgresql_flexible_server" "backend" {
   resource_group_name = module.application_resource_group.name
   version             = "16"
   sku_name            = "B_Standard_B1ms"
+  zone                = "2"
 
   administrator_login    = var.postgresql_administrator_login
   administrator_password = var.postgresql_administrator_password
