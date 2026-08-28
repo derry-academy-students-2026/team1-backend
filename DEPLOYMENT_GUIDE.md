@@ -188,8 +188,9 @@ Protect `main` in GitHub and require the `test`, `build-container`, and `terrafo
 ## 9. Deploy the demonstration PostgreSQL database
 
 The backend Terraform provisions an Azure Database for PostgreSQL Flexible Server
-and a manual Container Apps Job that applies committed Prisma migrations. It does
-not change the shared Container Apps Environment or the frontend application.
+and a manual Container Apps Job that applies committed Prisma migrations followed
+by non-destructive development seed data. It does not change the shared Container
+Apps Environment or the frontend application.
 
 Before opening a pull request, add this GitHub Actions secret:
 
@@ -210,9 +211,10 @@ state access restricted to deployment identities.
 On merge to `main`, the workflow pushes both the API image and its migration
 image, provisions the PostgreSQL server and `jobrole` database, writes the TLS
 connection string to the existing `DatabaseUrlString` Key Vault secret, and
-starts the migration job. Once the migration job has started, it restarts the
-active backend revision so it immediately reads the new `DATABASE_URL` from
-that Key Vault secret.
+starts the database job. The job applies committed migrations and adds or updates
+the demonstration job roles without deleting existing records. The workflow waits
+for the job to succeed before restarting the active backend revision so it reads
+the new `DATABASE_URL` from that Key Vault secret.
 
 The database uses a small burstable development SKU, seven-day backups, no high
 availability, and the Azure-services firewall exception. The firewall rule is

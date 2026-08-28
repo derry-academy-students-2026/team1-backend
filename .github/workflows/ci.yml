@@ -165,7 +165,26 @@ jobs:
         run: |
           RESOURCE_GROUP=$(terraform -chdir=infrastructure output -raw resource_group_name)
           JOB_NAME=$(terraform -chdir=infrastructure output -raw database_migration_job_name)
-          az containerapp job start --name "$JOB_NAME" --resource-group "$RESOURCE_GROUP"
+          EXECUTION_NAME=$(az containerapp job start --name "$JOB_NAME" --resource-group "$RESOURCE_GROUP" --query name --output tsv)
+          for attempt in {1..40}; do
+            STATUS=$(az containerapp job execution show --name "$JOB_NAME" --job-execution-name "$EXECUTION_NAME" --resource-group "$RESOURCE_GROUP" --query properties.status --output json | tr -d '"')
+            case "$STATUS" in
+              Succeeded)
+                echo "Database migration and seed job succeeded."
+                exit 0
+                ;;
+              Failed)
+                echo "Database migration and seed job failed: $EXECUTION_NAME"
+                exit 1
+                ;;
+              *)
+                echo "Database job status: $STATUS (attempt $attempt/40)"
+                sleep 15
+                ;;
+            esac
+          done
+          echo "Database migration and seed job timed out: $EXECUTION_NAME"
+          exit 1
       - name: Restart backend with the updated database connection
         run: |
           RESOURCE_GROUP=$(terraform -chdir=infrastructure output -raw resource_group_name)

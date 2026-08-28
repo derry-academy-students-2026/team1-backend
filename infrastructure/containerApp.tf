@@ -111,7 +111,7 @@ resource "azurerm_container_app_job" "database_migration" {
       image   = "${data.azurerm_container_registry.backend.login_server}/team1-backend-migration:${var.backend_image_tag}"
       cpu     = 0.25
       memory  = "0.5Gi"
-      command = ["npm", "run", "db:migrate"]
+      command = ["sh", "-c", "npm run db:migrate && npm run db:seed"]
 
       env {
         name        = "DATABASE_URL"

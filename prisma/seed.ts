@@ -6,47 +6,57 @@ const prisma = new PrismaClient();
 const SEED_USER_EMAIL = "test1@example.com";
 const SEED_USER_PASSWORD = "Password123!";
 
-/** Recreates reference data and the test user in the development database. */
+/** Adds or updates development reference data and job roles without deleting records. */
 async function main() {
-	await prisma.jobRole.deleteMany();
-	await prisma.status.deleteMany();
-	await prisma.capability.deleteMany();
-	await prisma.band.deleteMany();
-
-	const engineering = await prisma.capability.create({
-		data: { capabilityName: "Engineering" },
+	const engineering = await prisma.capability.upsert({
+		where: { capabilityName: "Engineering" },
+		update: {},
+		create: { capabilityName: "Engineering" },
 	});
 
-	const data = await prisma.capability.create({
-		data: { capabilityName: "Data" },
+	const data = await prisma.capability.upsert({
+		where: { capabilityName: "Data" },
+		update: {},
+		create: { capabilityName: "Data" },
 	});
 
-	const product = await prisma.capability.create({
-		data: { capabilityName: "Product" },
+	const product = await prisma.capability.upsert({
+		where: { capabilityName: "Product" },
+		update: {},
+		create: { capabilityName: "Product" },
 	});
 
-	const band2 = await prisma.band.create({
-		data: { bandName: "Band 2" },
+	const band2 = await prisma.band.upsert({
+		where: { bandName: "Band 2" },
+		update: {},
+		create: { bandName: "Band 2" },
 	});
 
-	const band3 = await prisma.band.create({
-		data: { bandName: "Band 3" },
+	const band3 = await prisma.band.upsert({
+		where: { bandName: "Band 3" },
+		update: {},
+		create: { bandName: "Band 3" },
 	});
 
-	const band4 = await prisma.band.create({
-		data: { bandName: "Band 4" },
+	const band4 = await prisma.band.upsert({
+		where: { bandName: "Band 4" },
+		create: { bandName: "Band 4" },
+		update: {},
 	});
 
-	const openStatus = await prisma.status.create({
-		data: { statusName: "open" },
+	const openStatus = await prisma.status.upsert({
+		where: { statusName: "open" },
+		update: {},
+		create: { statusName: "open" },
 	});
 
-	const closedStatus = await prisma.status.create({
-		data: { statusName: "closed" },
+	const closedStatus = await prisma.status.upsert({
+		where: { statusName: "closed" },
+		update: {},
+		create: { statusName: "closed" },
 	});
 
-	await prisma.jobRole.createMany({
-		data: [
+	const jobRoles = [
 			{
 				roleName: "Software Engineer",
 				location: "Derry",
@@ -148,15 +158,21 @@ async function main() {
 				sharepointUrl: "https://example.sharepoint.com/ux-designer",
 				numberOfOpenPositions: 1,
 			},
-		],
-		skipDuplicates: true,
-	});
+	];
+
+	for (const jobRole of jobRoles) {
+		await prisma.jobRole.upsert({
+			where: { sharepointUrl: jobRole.sharepointUrl },
+			update: jobRole,
+			create: jobRole,
+		});
+	}
 
 	const passwordHash = await argon2.hash(SEED_USER_PASSWORD);
 
 	await prisma.user.upsert({
 		where: { email: SEED_USER_EMAIL },
-		update: { passwordHash, role: "user" },
+		update: {},
 		create: { email: SEED_USER_EMAIL, passwordHash, role: "user" },
 	});
 
@@ -182,7 +198,7 @@ async function main() {
 		const hash = await argon2.hash(password);
 		await prisma.user.upsert({
 			where: { email },
-			update: { passwordHash: hash, role },
+			update: {},
 			create: { email, passwordHash: hash, role },
 		});
 	}
