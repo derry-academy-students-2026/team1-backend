@@ -18,7 +18,7 @@
 		"test:ui": "vitest --ui",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
-		"certs:export": "source=\"${KAINOS_CA_BUNDLE:-$HOME/certs/OneDrive_1_03-09-2026/KAINOS-ZSCALER G2_2027.pem}\"; test -r \"$source\" || { echo \"Certificate bundle not found: $source\" >&2; exit 1; }; mkdir -p certs && cp \"$source\" \"certs/KAINOS-ZSCALER G2_2027.pem\""
+		"certs:export": "source=\"${KAINOS_CA_BUNDLE:-$HOME/certs/KAINOS-ZSCALER G2_2027.pem}\"; test -r \"$source\" || { echo \"Certificate bundle not found: $source\" >&2; exit 1; }; mkdir -p certs && cp \"$source\" \"certs/KAINOS-ZSCALER G2_2027.pem\""
 	},
 	"vitest": {
 		"environment": "node",
