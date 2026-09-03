@@ -7,15 +7,18 @@
 		"dev": "tsx watch src/index.ts",
 		"build": "tsc",
 		"start": "node dist/index.js",
+		"db:setup": "docker compose up --wait db && npm run db:migrate && npm run db:seed",
 		"db:migrate": "prisma migrate deploy",
 		"db:seed": "prisma db seed",
+		"docker:up": "docker compose up --build -d",
+		"docker:down": "docker compose down",
 		"lint": "biome check .",
 		"lint:fix": "biome check . --write",
 		"test": "vitest run",
 		"test:ui": "vitest --ui",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
-		"certs:export": "mkdir -p certs && touch certs/corporate-root-ca.crt && for cn in KAINOS-INSPECTION KAINOS-ROOT-CA 'Zscaler Root CA'; do security find-certificate -a -c \"$cn\" -p /Library/Keychains/System.keychain; done > \"certs/KAINOS-ZSCALER G2_2026.pem\""
+		"certs:export": "source=\"${KAINOS_CA_BUNDLE:-$HOME/certs/OneDrive_1_03-09-2026/KAINOS-ZSCALER G2_2027.pem}\"; test -r \"$source\" || { echo \"Certificate bundle not found: $source\" >&2; exit 1; }; mkdir -p certs && cp \"$source\" \"certs/KAINOS-ZSCALER G2_2027.pem\""
 	},
 	"vitest": {
 		"environment": "node",

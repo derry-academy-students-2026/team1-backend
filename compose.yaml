@@ -19,6 +19,8 @@ services:
     build:
       context: .
       target: build
+      secrets:
+        - corporate_ca
     environment:
       DATABASE_URL: postgresql://postgres:password@db:5432/jobRole
     depends_on:
@@ -30,6 +32,8 @@ services:
   api:
     build:
       context: .
+      secrets:
+        - corporate_ca
     environment:
       DATABASE_URL: postgresql://postgres:password@db:5432/jobRole
       JWT_SECRET: ${JWT_SECRET:-development-only-secret-change-before-production}
@@ -54,3 +58,7 @@ services:
 
 volumes:
   postgres_data:
+
+secrets:
+  corporate_ca:
+    file: certs/KAINOS-ZSCALER G2_2027.pem

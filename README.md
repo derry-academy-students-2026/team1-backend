@@ -115,11 +115,11 @@ from the System keychain:
 npm run certs:export
 ```
 
-When building through the Kainos Zscaler proxy, pass the exported certificate as
+When building through the Kainos Zscaler proxy, use the exported certificate as
 a BuildKit secret:
 
 ```bash
-docker build --secret id=corporate_ca,src="certs/KAINOS-ZSCALER G2_2026.pem" --tag team1-backend:local .
+docker build --secret id=corporate_ca,src="certs/KAINOS-ZSCALER G2_2027.pem" --tag team1-backend:local .
 ```
 
 The certificate remains local and is not copied into the image. GitHub-hosted
@@ -131,6 +131,9 @@ seed data, run this command from the repository root:
 ```bash
 npm run docker:up
 ```
+
+`docker:up` automatically passes the exported certificate bundle to both Docker
+image builds.
 
 The API is available at `http://localhost:4000`. Compose connects the API to
 PostgreSQL over its internal `db` hostname, so no machine-specific database URL
