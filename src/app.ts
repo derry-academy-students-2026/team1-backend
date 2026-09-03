@@ -1,6 +1,7 @@
 import express from "express";
 import morganMiddleware from "./config/morganMiddleware.js";
 import Logger from "./lib/logger.js";
+import applicationRouter from "./routes/applicationRouter.js";
 import authRouter from "./routes/authRouter.js";
 import healthRouter from "./routes/healthRouter.js";
 import jobRolesRouter from "./routes/jobRolesRouter.js";
@@ -23,6 +24,8 @@ Logger.info("Auth routes mounted at /auth");
 if (jobRolesFeatureEnabled) {
 	app.use("/job-roles", jobRolesRouter);
 	Logger.info("Job routes mounted at /job-roles");
+	app.use("/job-roles", applicationRouter);
+	Logger.info("Application routes mounted at /job-roles");
 } else {
 	Logger.info("Job roles feature is disabled");
 }
