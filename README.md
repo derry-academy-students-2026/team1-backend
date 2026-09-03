@@ -115,11 +115,11 @@ from the System keychain:
 npm run certs:export
 ```
 
-When building through the Kainos Zscaler proxy, pass the exported certificate as
+When building through the Kainos Zscaler proxy, use the exported certificate as
 a BuildKit secret:
 
 ```bash
-docker build --secret id=corporate_ca,src="certs/KAINOS-ZSCALER G2_2026.pem" --tag team1-backend:local .
+docker build --secret id=corporate_ca,src="certs/KAINOS-ZSCALER G2_2027.pem" --tag team1-backend:local .
 ```
 
 The certificate remains local and is not copied into the image. GitHub-hosted
@@ -131,6 +131,9 @@ seed data, run this command from the repository root:
 ```bash
 npm run docker:up
 ```
+
+`docker:up` automatically passes the exported certificate bundle to both Docker
+image builds.
 
 The API is available at `http://localhost:4000`. Compose connects the API to
 PostgreSQL over its internal `db` hostname, so no machine-specific database URL
@@ -306,6 +309,19 @@ tests/
 ## Infrastructure and Deployment
 
 The Docker image, Terraform configuration, remote-state bootstrap instructions, and GitHub Actions setup are documented in [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
+
+### Enable Azure Deployment
+
+The backend workflow always runs tests and builds the container image. Azure
+deployment jobs (ACR push, Terraform plan, and Terraform apply) run only when
+the GitHub Actions repository variable `ENABLE_AZURE_DEPLOYMENT` is `true`.
+
+For local development, leave the variable unset or set it to `false`. To deploy
+to Azure again, go to **GitHub Settings -> Secrets and variables -> Actions -> Variables**, then set `ENABLE_AZURE_DEPLOYMENT` to `true`.
+Setting `ENABLE_AZURE_DEPLOYMENT` to `true` enables Azure deployment.
+
+The variable is a deployment switch and contains no sensitive value. Azure
+credentials must remain configured as GitHub Actions secrets.
 
 ## API Documentation
 

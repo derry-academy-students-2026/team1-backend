@@ -37,7 +37,7 @@ jobs:
 
   push-image:
     name: Push image to ACR
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: ${{ vars.ENABLE_AZURE_DEPLOYMENT == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     needs: build-container
     runs-on: ubuntu-latest
     permissions:
@@ -73,6 +73,7 @@ jobs:
 
   terraform-plan:
     name: Terraform plan
+    if: ${{ vars.ENABLE_AZURE_DEPLOYMENT == 'true' }}
     needs: test
     runs-on: ubuntu-latest
     permissions:
@@ -117,7 +118,7 @@ jobs:
 
   terraform-apply:
     name: Terraform apply
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: ${{ vars.ENABLE_AZURE_DEPLOYMENT == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     needs: [push-image, terraform-plan]
     runs-on: ubuntu-latest
     permissions:
