@@ -310,6 +310,19 @@ tests/
 
 The Docker image, Terraform configuration, remote-state bootstrap instructions, and GitHub Actions setup are documented in [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
+### Enable Azure Deployment
+
+The backend workflow always runs tests and builds the container image. Azure
+deployment jobs (ACR push, Terraform plan, and Terraform apply) run only when
+the GitHub Actions repository variable `ENABLE_AZURE_DEPLOYMENT` is `true`.
+
+For local development, leave the variable unset or set it to `false`. To deploy
+to Azure again, go to **GitHub Settings -> Secrets and variables -> Actions -> Variables**, then set `ENABLE_AZURE_DEPLOYMENT` to `true`.
+Setting `ENABLE_AZURE_DEPLOYMENT` to `true` enables Azure deployment.
+
+The variable is a deployment switch and contains no sensitive value. Azure
+credentials must remain configured as GitHub Actions secrets.
+
 ## API Documentation
 
 Health Check:
