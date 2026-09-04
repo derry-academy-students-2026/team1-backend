@@ -82,6 +82,8 @@ model Application {
   address        String
   linkedInUrl    String?
   coverLetter    String
+  rightToWork    String
+  privacyConsent String
   status         String   @default("in progress")
   createdAt      DateTime @default(now())
 

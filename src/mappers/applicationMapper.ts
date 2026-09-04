@@ -10,6 +10,8 @@ type ApplicationRecord = {
 	address: string;
 	linkedInUrl: string | null;
 	coverLetter: string;
+	rightToWork: string;
+	privacyConsent: string;
 	status: string;
 	createdAt: Date;
 };
@@ -36,6 +38,8 @@ export const mapToApplicationResponseDto = (
 		address: application.address,
 		linkedInUrl: application.linkedInUrl,
 		coverLetter: application.coverLetter,
+		rightToWork: application.rightToWork,
+		privacyConsent: application.privacyConsent,
 		status: application.status,
 		createdAt: application.createdAt,
 	};

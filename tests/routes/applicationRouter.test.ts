@@ -29,6 +29,8 @@ const validApplication = {
 	phoneNumber: "07700 900123",
 	address: "1 Example Street, Belfast, BT1 1AA",
 	coverLetter: "I am interested in this role.",
+	rightToWork: "yes",
+	privacyConsent: "on",
 };
 
 const createApp = () => {
@@ -68,7 +70,57 @@ describe("applicationRouter", () => {
 
 		expect(response.status).toBe(400);
 		expect(response.body.errors).toEqual([
-			{ field: "applicantEmail", message: "Enter a valid email address" },
+			{
+				field: "applicantEmail",
+				message:
+					"Enter an email address in the correct format, like name@example.com",
+			},
+		]);
+		expect(mockCreate).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		[
+			"rightToWork",
+			{ rightToWork: "maybe" },
+			"Select whether you have the right to work in the UK/Ireland",
+		],
+		[
+			"privacyConsent",
+			{ privacyConsent: "off" },
+			"Consent is required to submit your application",
+		],
+	] as const)(
+		"POST /job-roles/:id/apply should return 400 for invalid %s",
+		async (_field, invalidField, message) => {
+			const response = await request(createApp())
+				.post("/job-roles/1/apply")
+				.set("Authorization", `Bearer ${token}`)
+				.send({ ...validApplication, ...invalidField });
+
+			expect(response.status).toBe(400);
+			expect(response.body).toMatchObject({ message });
+			expect(response.body.errors).toContainEqual({
+				field: _field,
+				message,
+			});
+			expect(mockCreate).not.toHaveBeenCalled();
+		},
+	);
+
+	it("POST /job-roles/:id/apply should return 400 when new required fields are missing", async () => {
+		const { rightToWork: _rightToWork, ...withoutRightToWork } = validApplication;
+		const response = await request(createApp())
+			.post("/job-roles/1/apply")
+			.set("Authorization", `Bearer ${token}`)
+			.send(withoutRightToWork);
+
+		expect(response.status).toBe(400);
+		expect(response.body.errors).toEqual([
+			{
+				field: "rightToWork",
+				message: "Select whether you have the right to work in the UK/Ireland",
+			},
 		]);
 		expect(mockCreate).not.toHaveBeenCalled();
 	});

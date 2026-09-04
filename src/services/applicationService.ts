@@ -76,6 +76,8 @@ export class ApplicationService {
 					address: dto.address,
 					linkedInUrl: dto.linkedInUrl ?? null,
 					coverLetter: dto.coverLetter,
+					rightToWork: dto.rightToWork,
+					privacyConsent: dto.privacyConsent,
 				},
 			});
 

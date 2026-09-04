@@ -24,6 +24,9 @@ jobs:
   build-container:
     name: Build container image
     needs: test
+    # Docker image build paused while Azure CI/CD is being reworked; flip to true
+    # to re-enable at the same time the Azure steps below come back.
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

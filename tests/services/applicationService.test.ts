@@ -35,6 +35,8 @@ const applicationInput = {
 	address: "1 Example Street, Belfast, BT1 1AA",
 	linkedInUrl: "https://www.linkedin.com/in/ada",
 	coverLetter: "I am interested in this role.",
+	rightToWork: "yes" as const,
+	privacyConsent: "on" as const,
 };
 
 const sampleDbApplication = {
@@ -56,6 +58,8 @@ const expectedDto = {
 	address: applicationInput.address,
 	linkedInUrl: applicationInput.linkedInUrl,
 	coverLetter: applicationInput.coverLetter,
+	rightToWork: applicationInput.rightToWork,
+	privacyConsent: applicationInput.privacyConsent,
 	status: "in progress",
 	createdAt: sampleDbApplication.createdAt,
 };
@@ -91,6 +95,8 @@ describe("ApplicationService", () => {
 					address: applicationInput.address,
 					linkedInUrl: applicationInput.linkedInUrl,
 					coverLetter: applicationInput.coverLetter,
+					rightToWork: applicationInput.rightToWork,
+					privacyConsent: applicationInput.privacyConsent,
 				},
 			});
 			expect(result).toEqual(expectedDto);

@@ -15,6 +15,8 @@ const applicationBody = {
 	phoneNumber: "07700 900123",
 	address: "1 Example Street, Belfast, BT1 1AA",
 	coverLetter: "I am interested in this role.",
+	rightToWork: "yes",
+	privacyConsent: "on",
 };
 
 const createRequest = (overrides: Record<string, unknown> = {}) => ({
