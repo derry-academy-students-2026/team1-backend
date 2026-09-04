@@ -236,7 +236,9 @@ describe("ApplicationService", () => {
 			const result = await service.hasApplied(JOB_ROLE_ID, USER_ID);
 
 			expect(prisma.application.findUnique).toHaveBeenCalledWith({
-				where: { jobRoleId_userId: { jobRoleId: JOB_ROLE_ID, userId: USER_ID } },
+				where: {
+					jobRoleId_userId: { jobRoleId: JOB_ROLE_ID, userId: USER_ID },
+				},
 			});
 			expect(result).toBe(true);
 		});
