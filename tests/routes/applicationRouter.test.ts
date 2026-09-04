@@ -109,7 +109,8 @@ describe("applicationRouter", () => {
 	);
 
 	it("POST /job-roles/:id/apply should return 400 when new required fields are missing", async () => {
-		const { rightToWork: _rightToWork, ...withoutRightToWork } = validApplication;
+		const { rightToWork: _rightToWork, ...withoutRightToWork } =
+			validApplication;
 		const response = await request(createApp())
 			.post("/job-roles/1/apply")
 			.set("Authorization", `Bearer ${token}`)

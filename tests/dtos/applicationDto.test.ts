@@ -150,9 +150,9 @@ describe("CreateApplicationSchema", () => {
 	it("should reject missing rightToWork", () => {
 		const { rightToWork: _omitted, ...withoutRightToWork } = validApplication;
 
-		expect(
-			CreateApplicationSchema.safeParse(withoutRightToWork).success,
-		).toBe(false);
+		expect(CreateApplicationSchema.safeParse(withoutRightToWork).success).toBe(
+			false,
+		);
 	});
 
 	it("should reject invalid privacyConsent with the frontend message", () => {
