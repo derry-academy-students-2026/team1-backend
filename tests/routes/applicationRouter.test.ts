@@ -3,12 +3,15 @@ import jwt from "jsonwebtoken";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockCreate, mockGetByRoleId } = vi.hoisted(() => ({
+const { mockCreate, mockGetByRoleId, mockGetStatus } = vi.hoisted(() => ({
 	mockCreate: vi.fn((_req, res) => {
 		res.status(201).json({ id: 10, roleId: 1, status: "in progress" });
 	}),
 	mockGetByRoleId: vi.fn((_req, res) => {
 		res.status(200).json([{ id: 10, roleId: 1 }]);
+	}),
+	mockGetStatus: vi.fn((_req, res) => {
+		res.status(200).json({ hasApplied: true });
 	}),
 }));
 
@@ -16,6 +19,7 @@ vi.mock("../../src/controllers/applicationController.js", () => ({
 	ApplicationController: class {
 		create = mockCreate;
 		getByRoleId = mockGetByRoleId;
+		getStatus = mockGetStatus;
 	},
 }));
 
@@ -60,6 +64,25 @@ describe("applicationRouter", () => {
 		expect(response.status).toBe(201);
 		expect(response.body).toEqual({ id: 10, roleId: 1, status: "in progress" });
 		expect(mockCreate).toHaveBeenCalledTimes(1);
+	});
+
+	it("GET /job-roles/:id/application-status should delegate to getStatus", async () => {
+		const response = await request(createApp())
+			.get("/job-roles/1/application-status")
+			.set("Authorization", `Bearer ${token}`);
+
+		expect(response.status).toBe(200);
+		expect(response.body).toEqual({ hasApplied: true });
+		expect(mockGetStatus).toHaveBeenCalledTimes(1);
+	});
+
+	it("GET /job-roles/:id/application-status should require authentication", async () => {
+		const response = await request(createApp()).get(
+			"/job-roles/1/application-status",
+		);
+
+		expect(response.status).toBe(401);
+		expect(mockGetStatus).not.toHaveBeenCalled();
 	});
 
 	it("POST /job-roles/:id/apply should return 400 for an invalid email", async () => {

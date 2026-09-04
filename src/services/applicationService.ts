@@ -105,6 +105,27 @@ export class ApplicationService {
 	}
 
 	/**
+	 * Checks whether the given account has already applied for a job role.
+	 * Relies on the same `[jobRoleId, userId]` unique constraint that guards
+	 * application creation, so it stays consistent no matter which session
+	 * or device the account is using.
+	 * @param jobRoleId The ID of the job role to check.
+	 * @param userId The ID of the account to check.
+	 * @returns A promise that resolves to true if an application already exists.
+	 */
+	public async hasApplied(jobRoleId: number, userId: number): Promise<boolean> {
+		Logger.debug(
+			`🔍 Checking whether user ID ${userId} has applied for job role ID ${jobRoleId}`,
+		);
+
+		const application = await prisma.application.findUnique({
+			where: { jobRoleId_userId: { jobRoleId, userId } },
+		});
+
+		return application !== null;
+	}
+
+	/**
 	 * Finds every application submitted for a job role, newest first.
 	 * @param jobRoleId The ID of the job role whose applicants are requested.
 	 * @returns A promise that resolves to an array of ApplicationResponseDto objects.

@@ -72,6 +72,34 @@ export class ApplicationController {
 	}
 
 	/**
+	 * Handles the request to check whether the signed-in account has already
+	 * applied for a job role.
+	 * @param req http request object
+	 * @param res http response object
+	 */
+	async getStatus(req: Request, res: Response): Promise<void> {
+		const id = Number(req.params.id);
+		const userId = (req.user as JwtPayloadDto).userId;
+
+		Logger.debug(
+			`🌐 [GET /job-roles/:id/application-status] Received request for job role ID: ${id} by user ID: ${userId}`,
+		);
+
+		try {
+			const hasApplied = await this.service.hasApplied(id, userId);
+			Logger.info(
+				`📤 [GET /job-roles/:id/application-status] Returning hasApplied=${hasApplied} for job role ID ${id} by user ID ${userId} | Status: 200`,
+			);
+			res.status(200).json({ hasApplied });
+		} catch (error) {
+			Logger.error(
+				`❌ [GET /job-roles/:id/application-status] Request failed for job role ID ${id} by user ID ${userId}: ${error instanceof Error ? error.message : String(error)}`,
+			);
+			res.status(500).json({ message: "Failed to fetch application status" });
+		}
+	}
+
+	/**
 	 * Handles the request to retrieve every applicant for a job role.
 	 * @param req http request object
 	 * @param res http response object

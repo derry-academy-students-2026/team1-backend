@@ -8,6 +8,7 @@ vi.mock("../../src/prismaClient.js", () => ({
 		application: {
 			create: vi.fn(),
 			findMany: vi.fn(),
+			findUnique: vi.fn(),
 		},
 	},
 }));
@@ -222,6 +223,31 @@ describe("ApplicationService", () => {
 			await expect(
 				service.create(JOB_ROLE_ID, USER_ID, applicationInput),
 			).rejects.toThrow("Connection lost");
+		});
+	});
+
+	describe("hasApplied", () => {
+		it("should return true when an application already exists for the role and user", async () => {
+			vi.mocked(prisma.application.findUnique).mockResolvedValue(
+				sampleDbApplication as never,
+			);
+
+			const service = new ApplicationService();
+			const result = await service.hasApplied(JOB_ROLE_ID, USER_ID);
+
+			expect(prisma.application.findUnique).toHaveBeenCalledWith({
+				where: { jobRoleId_userId: { jobRoleId: JOB_ROLE_ID, userId: USER_ID } },
+			});
+			expect(result).toBe(true);
+		});
+
+		it("should return false when no application exists for the role and user", async () => {
+			vi.mocked(prisma.application.findUnique).mockResolvedValue(null);
+
+			const service = new ApplicationService();
+			const result = await service.hasApplied(JOB_ROLE_ID, USER_ID);
+
+			expect(result).toBe(false);
 		});
 	});
 

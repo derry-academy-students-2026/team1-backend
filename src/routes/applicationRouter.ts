@@ -28,5 +28,12 @@ router.get(
 	validateParams(IdParamSchema),
 	controller.getByRoleId.bind(controller),
 );
+// Lets the frontend show "already applied" on page load, independent of session state
+router.get(
+	"/:id/application-status",
+	validateParams(IdParamSchema),
+	requireAuthenticatedUser,
+	controller.getStatus.bind(controller),
+);
 
 export default router;
