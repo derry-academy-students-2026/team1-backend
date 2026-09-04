@@ -169,22 +169,12 @@ describe("applicationRouter", () => {
 		expect(mockCreate).not.toHaveBeenCalled();
 	});
 
-	it("GET /job-roles/:id/applications should delegate to getByRoleId", async () => {
+	it("GET /job-roles/:id/applications should not be exposed to a signed-in user", async () => {
 		const response = await request(createApp())
 			.get("/job-roles/1/applications")
 			.set("Authorization", `Bearer ${token}`);
 
-		expect(response.status).toBe(200);
-		expect(response.body).toEqual([{ id: 10, roleId: 1 }]);
-		expect(mockGetByRoleId).toHaveBeenCalledTimes(1);
-	});
-
-	it("GET /job-roles/:id/applications should return 401 without a token", async () => {
-		const response = await request(createApp()).get(
-			"/job-roles/1/applications",
-		);
-
-		expect(response.status).toBe(401);
+		expect(response.status).toBe(404);
 		expect(mockGetByRoleId).not.toHaveBeenCalled();
 	});
 });

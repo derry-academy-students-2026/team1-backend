@@ -23,11 +23,10 @@ router.post(
 	requireAuthenticatedUser,
 	controller.create.bind(controller),
 );
-router.get(
-	"/:id/applications",
-	validateParams(IdParamSchema),
-	controller.getByRoleId.bind(controller),
-);
+// GET /:id/applications is deliberately not registered: it returns applicant PII
+// and only an admin may see it, so it stays off until role-based access exists.
+// ApplicationController.getByRoleId is kept for that work.
+
 // Lets the frontend show "already applied" on page load, independent of session state
 router.get(
 	"/:id/application-status",
