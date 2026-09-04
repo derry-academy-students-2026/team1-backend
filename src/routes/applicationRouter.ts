@@ -1,0 +1,42 @@
+import express from "express";
+import { ApplicationController } from "../controllers/applicationController.js";
+import { CreateApplicationSchema } from "../dtos/applicationDto.js";
+import { IdParamSchema } from "../dtos/jobRoleDto.js";
+import {
+	requireAuth,
+	requireAuthenticatedUser,
+} from "../middleware/authMiddleware.js";
+import { validateBody, validateParams } from "../middleware/validate.js";
+import { ApplicationService } from "../services/applicationService.js";
+
+const router = express.Router();
+const controller = new ApplicationController(new ApplicationService());
+
+// requireAuth is applied per route, not via router.use: this router shares the
+// /job-roles mount with jobRolesRouter, and a router-level guard would turn
+// unmatched /job-roles paths into 401s instead of 404s.
+
+// validateParams rejects a non-numeric :id and validateBody the applicant
+// details, so the controller only ever sees a valid request
+router.post(
+	"/:id/apply",
+	requireAuth,
+	validateParams(IdParamSchema),
+	validateBody(CreateApplicationSchema),
+	requireAuthenticatedUser,
+	controller.create.bind(controller),
+);
+// GET /:id/applications is deliberately not registered: it returns applicant PII
+// and only an admin may see it, so it stays off until role-based access exists.
+// ApplicationController.getByRoleId is kept for that work.
+
+// Lets the frontend show "already applied" on page load, independent of session state
+router.get(
+	"/:id/application-status",
+	requireAuth,
+	validateParams(IdParamSchema),
+	requireAuthenticatedUser,
+	controller.getStatus.bind(controller),
+);
+
+export default router;

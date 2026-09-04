@@ -2,7 +2,10 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
-import { requireAuth } from "../../src/middleware/authMiddleware.js";
+import {
+	requireAuth,
+	requireAuthenticatedUser,
+} from "../../src/middleware/authMiddleware.js";
 
 const TEST_SECRET = "test-secret";
 
@@ -102,6 +105,48 @@ describe("requireAuth", () => {
 		const response = await request(buildApp())
 			.get("/protected")
 			.set("Authorization", `Bearer ${token}`);
+
+		expect(response.status).toBe(401);
+	});
+});
+
+describe("requireAuthenticatedUser", () => {
+	const buildUserApp = (user?: { userId: unknown; email: string }) => {
+		const app = express();
+		app.get(
+			"/protected",
+			(req, _res, next) => {
+				req.user = user as never;
+				next();
+			},
+			requireAuthenticatedUser,
+			(_req, res) => {
+				res.status(200).json({ ok: true });
+			},
+		);
+		return app;
+	};
+
+	it("should allow the request through when a numeric user ID is present", async () => {
+		const response = await request(
+			buildUserApp({ userId: 1, email: "test1@example.com" }),
+		).get("/protected");
+
+		expect(response.status).toBe(200);
+		expect(response.body).toEqual({ ok: true });
+	});
+
+	it("should return 401 when no user is attached to the request", async () => {
+		const response = await request(buildUserApp()).get("/protected");
+
+		expect(response.status).toBe(401);
+		expect(response.body).toEqual({ message: "Invalid token" });
+	});
+
+	it("should return 401 when the user ID is not a number", async () => {
+		const response = await request(
+			buildUserApp({ userId: "1", email: "test1@example.com" }),
+		).get("/protected");
 
 		expect(response.status).toBe(401);
 	});

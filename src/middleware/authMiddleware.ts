@@ -61,3 +61,27 @@ export const requireAuth = (
 };
 
 export default requireAuth;
+
+/**
+ * Express middleware that requires `req.user` to carry a numeric user ID.
+ * Runs after `requireAuth` so handlers acting on behalf of the caller can rely
+ * on the identity being present without re-checking it.
+ * @param req http request object
+ * @param res http response object
+ * @param next callback to pass control to the next handler
+ */
+export const requireAuthenticatedUser = (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+): void => {
+	if (typeof req.user?.userId !== "number") {
+		Logger.warn(
+			`⚠️  [AUTH] No authenticated user on request: ${req.method} ${req.path} | Status: 401`,
+		);
+		res.status(401).json({ message: INVALID_TOKEN_MESSAGE });
+		return;
+	}
+
+	next();
+};

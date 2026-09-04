@@ -28,6 +28,7 @@ model JobRole {
   capability   Capability @relation(fields: [capabilityId], references: [capabilityId])
   band         Band       @relation(fields: [bandId], references: [bandId])
   status       Status     @relation(fields: [statusId], references: [statusId])
+  applications Application[]
 
   @@map("job_roles")
 }
@@ -66,6 +67,41 @@ model User {
   role         String   @default("user")
   createdAt    DateTime @default(now())
 
+  applications Application[]
+
   @@map("users")
+}
+
+// Values match the HTML form fields exactly, so the API contract is unchanged
+enum RightToWork {
+  yes
+  no
+}
+
+enum PrivacyConsent {
+  on
+}
+
+model Application {
+  applicationId  Int            @id @default(autoincrement())
+  jobRoleId      Int
+  userId         Int
+  applicantName  String
+  applicantEmail String
+  phoneNumber    String
+  address        String
+  linkedInUrl    String?
+  coverLetter    String
+  rightToWork    RightToWork
+  privacyConsent PrivacyConsent
+  status         String         @default("in progress")
+  createdAt      DateTime       @default(now())
+
+  jobRole JobRole @relation(fields: [jobRoleId], references: [jobRoleId])
+  user    User    @relation(fields: [userId], references: [userId])
+
+  // One application per account per role, so a different typed email cannot bypass the check
+  @@unique([jobRoleId, userId])
+  @@map("applications")
 }
 

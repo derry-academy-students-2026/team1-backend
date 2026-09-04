@@ -41,6 +41,7 @@ describe("validateBody", () => {
 		expect(next).not.toHaveBeenCalled();
 		expect(res.status).toHaveBeenCalledWith(400);
 		expect(res.status(400).json).toHaveBeenCalledWith({
+			message: "Email is required",
 			errors: [
 				{ field: "email", message: "Email is required" },
 				{ field: "password", message: "Password is required" },
@@ -75,6 +76,7 @@ describe("validateParams", () => {
 		expect(next).not.toHaveBeenCalled();
 		expect(res.status).toHaveBeenCalledWith(400);
 		expect(res.status(400).json).toHaveBeenCalledWith({
+			message: "ID must be a number",
 			errors: [{ field: "id", message: "ID must be a number" }],
 		});
 	});

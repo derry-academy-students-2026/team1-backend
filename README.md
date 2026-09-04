@@ -10,6 +10,7 @@ A RESTful API backend built with Express, TypeScript, and PostgreSQL using Prism
 - [Building for Production](#building-for-production)
 - [Testing](#testing)
 - [Database Migrations](#database-migrations)
+- [Prisma Client Generation](#prisma-client-generation)
 - [Linting and Code Quality](#linting-and-code-quality)
 - [Project Structure](#project-structure)
 - [Technologies](#technologies)
@@ -69,6 +70,15 @@ npm run db:setup
 
 This starts a named Docker volume for PostgreSQL and waits for it to be ready,
 so no separate container name, hostname, or connection command is required.
+
+5. Generate the Prisma client so TypeScript knows about the schema:
+
+```bash
+npx prisma generate
+```
+
+This project has no `postinstall` hook, so `npm install`/`npm ci` do not run this
+for you — see [Prisma Client Generation](#prisma-client-generation) for details.
 
 ## Running the Application
 
@@ -233,6 +243,35 @@ Open Prisma Studio to browse and edit your database:
 ```bash
 npx prisma studio
 ```
+
+## Prisma Client Generation
+
+`npx prisma generate` reads `prisma/schema.prisma` and writes the typed Prisma
+Client into `node_modules/@prisma/client`. Every model, field, and relation used
+in `src/services/*.ts` (via `import prisma from "../prismaClient.js"`) comes from
+this generated code, so the app and its tests fail to build without it.
+
+```bash
+npx prisma generate
+```
+
+Run it whenever the generated client can be out of sync with the schema:
+
+- **After `npm install` or `npm ci`.** This project has no `postinstall` hook,
+  so installing dependencies does **not** regenerate the client on its own —
+  the CI workflow runs `npm exec prisma generate` as a separate step for this
+  reason.
+- **After editing `prisma/schema.prisma` directly**, before the new fields or
+  models are usable in TypeScript.
+- **After pulling changes or switching branches** that touched
+  `prisma/schema.prisma` or added a migration — otherwise the client still
+  reflects the old schema and TypeScript will show stale or missing fields.
+- **After `npx prisma migrate deploy`** (what `npm run db:migrate` and
+  `npm run db:setup` run). Unlike `migrate dev`, `migrate deploy` applies
+  migrations to the database but does **not** regenerate the client.
+
+You can skip it after `npx prisma migrate dev --name <migration_name>` — that
+command regenerates the client automatically once the migration is applied.
 
 ## Linting and Code Quality
 
