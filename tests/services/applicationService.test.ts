@@ -184,18 +184,20 @@ describe("ApplicationService", () => {
 			expect(prisma.application.create).not.toHaveBeenCalled();
 		});
 
-		it("should throw ROLE_CLOSED when there are no open positions left", async () => {
+		it("should still accept an application when no open positions remain", async () => {
 			vi.mocked(prisma.jobRole.findUnique).mockResolvedValue({
 				...openJobRole,
 				numberOfOpenPositions: 0,
 			} as never);
+			vi.mocked(prisma.application.create).mockResolvedValue(
+				sampleDbApplication as never,
+			);
 
 			const service = new ApplicationService();
 
 			await expect(
 				service.create(JOB_ROLE_ID, USER_ID, applicationInput),
-			).rejects.toThrow(new ApplicationError("ROLE_CLOSED"));
-			expect(prisma.application.create).not.toHaveBeenCalled();
+			).resolves.toEqual(expectedDto);
 		});
 
 		it("should translate a Prisma unique constraint violation into DUPLICATE_APPLICATION", async () => {

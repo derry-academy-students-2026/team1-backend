@@ -24,9 +24,9 @@ jobs:
   build-container:
     name: Build container image
     needs: test
-    # Docker image build paused while Azure CI/CD is being reworked; flip to true
-    # to re-enable at the same time the Azure steps below come back.
-    if: false
+    # Gated on the same flag as the Azure jobs below so the image build and the
+    # deployment it feeds are always enabled or disabled together.
+    if: ${{ vars.ENABLE_AZURE_DEPLOYMENT == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

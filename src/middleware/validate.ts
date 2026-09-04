@@ -38,7 +38,9 @@ export const validateBody =
 			const errors = toValidationErrors(result.error.issues);
 			logValidationFailure(req, "body", errors);
 			// `message` mirrors the auth endpoints so clients can show one readable error
-			res.status(400).json({ message: errors[0].message, errors });
+			res
+				.status(400)
+				.json({ message: errors[0]?.message ?? "Invalid request", errors });
 			return;
 		}
 
@@ -55,7 +57,9 @@ export const validateParams =
 		if (!result.success) {
 			const errors = toValidationErrors(result.error.issues);
 			logValidationFailure(req, "params", errors);
-			res.status(400).json({ message: errors[0].message, errors });
+			res
+				.status(400)
+				.json({ message: errors[0]?.message ?? "Invalid request", errors });
 			return;
 		}
 

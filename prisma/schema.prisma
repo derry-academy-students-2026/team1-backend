@@ -72,8 +72,18 @@ model User {
   @@map("users")
 }
 
+// Values match the HTML form fields exactly, so the API contract is unchanged
+enum RightToWork {
+  yes
+  no
+}
+
+enum PrivacyConsent {
+  on
+}
+
 model Application {
-  applicationId  Int      @id @default(autoincrement())
+  applicationId  Int            @id @default(autoincrement())
   jobRoleId      Int
   userId         Int
   applicantName  String
@@ -82,10 +92,10 @@ model Application {
   address        String
   linkedInUrl    String?
   coverLetter    String
-  rightToWork    String
-  privacyConsent String
-  status         String   @default("in progress")
-  createdAt      DateTime @default(now())
+  rightToWork    RightToWork
+  privacyConsent PrivacyConsent
+  status         String         @default("in progress")
+  createdAt      DateTime       @default(now())
 
   jobRole JobRole @relation(fields: [jobRoleId], references: [jobRoleId])
   user    User    @relation(fields: [userId], references: [userId])

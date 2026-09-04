@@ -80,6 +80,8 @@ export const CreateApplicationSchema = z.object({
 		.trim()
 		.min(1, "Enter a cover letter or additional information")
 		.max(2000, "Cover letter must be 2000 characters or less"),
+	// "no" is a valid submission: the business rule is to record the declaration
+	// and screen eligibility later, not to block the application here.
 	rightToWork: z.enum(["yes", "no"], {
 		message: "Select whether you have the right to work in the UK/Ireland",
 	}),

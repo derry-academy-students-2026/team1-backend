@@ -12,12 +12,15 @@ import { ApplicationService } from "../services/applicationService.js";
 const router = express.Router();
 const controller = new ApplicationController(new ApplicationService());
 
-router.use(requireAuth);
+// requireAuth is applied per route, not via router.use: this router shares the
+// /job-roles mount with jobRolesRouter, and a router-level guard would turn
+// unmatched /job-roles paths into 401s instead of 404s.
 
 // validateParams rejects a non-numeric :id and validateBody the applicant
 // details, so the controller only ever sees a valid request
 router.post(
 	"/:id/apply",
+	requireAuth,
 	validateParams(IdParamSchema),
 	validateBody(CreateApplicationSchema),
 	requireAuthenticatedUser,
@@ -30,6 +33,7 @@ router.post(
 // Lets the frontend show "already applied" on page load, independent of session state
 router.get(
 	"/:id/application-status",
+	requireAuth,
 	validateParams(IdParamSchema),
 	requireAuthenticatedUser,
 	controller.getStatus.bind(controller),

@@ -55,12 +55,11 @@ export class ApplicationService {
 				throw new ApplicationError("ROLE_NOT_FOUND");
 			}
 
-			if (
-				jobRole.status.statusName.toLowerCase() !== "open" ||
-				jobRole.numberOfOpenPositions <= 0
-			) {
+			// numberOfOpenPositions is not checked: nothing decrements it yet, so it
+			// would be a guard that can never fire. Add it back with the decrement.
+			if (jobRole.status.statusName.toLowerCase() !== "open") {
 				Logger.warn(
-					`⚠️  Job role ID ${jobRoleId} is not accepting applications (status: "${jobRole.status.statusName}", open positions: ${jobRole.numberOfOpenPositions})`,
+					`⚠️  Job role ID ${jobRoleId} is not accepting applications (status: "${jobRole.status.statusName}")`,
 				);
 				throw new ApplicationError("ROLE_CLOSED");
 			}
