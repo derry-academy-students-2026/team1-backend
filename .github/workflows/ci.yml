@@ -21,9 +21,23 @@ jobs:
       - run: npm run lint
       - run: npm test
 
+  gitleaks:
+    name: Scan for secrets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build-container:
     name: Build container image
-    needs: test
+    needs: [test, gitleaks]
     # Gated on the same flag as the Azure jobs below so the image build and the
     # deployment it feeds are always enabled or disabled together.
     if: ${{ vars.ENABLE_AZURE_DEPLOYMENT == 'true' }}
@@ -77,7 +91,7 @@ jobs:
   terraform-plan:
     name: Terraform plan
     if: ${{ vars.ENABLE_AZURE_DEPLOYMENT == 'true' }}
-    needs: test
+    needs: [test, gitleaks]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -195,3 +209,4 @@ jobs:
           APP_NAME=$(terraform -chdir=infrastructure output -raw backend_container_app_name)
           REVISION_NAME=$(az containerapp revision list --name "$APP_NAME" --resource-group "$RESOURCE_GROUP" --query "[?properties.active] | [0].name" --output tsv)
           az containerapp revision restart --name "$APP_NAME" --resource-group "$RESOURCE_GROUP" --revision "$REVISION_NAME"
+
