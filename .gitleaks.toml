@@ -1,0 +1,4 @@
+title = "Team Project Secret Scanning"
+
+[extend]
+useDefault = true
